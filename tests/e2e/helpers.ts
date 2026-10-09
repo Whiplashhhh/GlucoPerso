@@ -1,20 +1,21 @@
 import { type Page, expect } from "@playwright/test";
+import pg from "pg";
+import { generateCode, hashCode } from "../../src/lib/security/codes";
 
 export const E2E_DATABASE_URL =
   process.env.E2E_DATABASE_URL ??
   "postgresql://glucoperso:glucoperso@localhost:5433/glucoperso_test";
 
-/** Known single-use invite codes inserted by the global setup. */
-export const INVITE_CODES = Array.from(
-  { length: 12 },
-  (_, i) => `E2E0-TEST-${String(i).padStart(4, "0")}`,
-);
-
-let inviteIndex = 0;
-export function nextInvite(): string {
-  const code = INVITE_CODES[inviteIndex];
-  inviteIndex += 1;
-  if (!code) throw new Error("No invite code left for e2e tests");
+/** Creates a fresh single-use invite directly in the test database. */
+export async function nextInvite(): Promise<string> {
+  const code = generateCode();
+  const client = new pg.Client({ connectionString: E2E_DATABASE_URL });
+  await client.connect();
+  await client.query(
+    `INSERT INTO "InviteCode" (id, "codeHash", "createdAt") VALUES ($1, $2, now())`,
+    [`e2e-${code}`, hashCode(code)],
+  );
+  await client.end();
   return code;
 }
 
@@ -33,7 +34,7 @@ export async function registerAndOnboard(
   await page.getByLabel("Ton prénom").fill(name);
   await page.getByLabel("Email").fill(email);
   await page.getByLabel("Mot de passe", { exact: true }).fill(PASSWORD);
-  await page.getByLabel("Code d'invitation").fill(nextInvite());
+  await page.getByLabel("Code d'invitation").fill(await nextInvite());
   await page.getByRole("button", { name: "Créer mon carnet" }).click();
 
   await expect(page.getByRole("heading", { name: "Tes codes de secours" })).toBeVisible();
