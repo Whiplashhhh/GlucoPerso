@@ -259,13 +259,18 @@ export function FeedbackFlow({
         </details>
       </div>
 
-      <div className="fixed inset-x-0 bottom-0 mx-auto w-full max-w-md bg-gradient-to-t from-bg via-bg/95 to-transparent px-5 pt-8 pb-safe">
+      <div className="pointer-events-none fixed inset-x-0 bottom-0 mx-auto w-full max-w-md bg-gradient-to-t from-bg via-bg/95 to-transparent px-5 pt-8 pb-safe">
         {error && (
-          <Notice tone="warm" className="mb-3">
+          <Notice tone="warm" className="pointer-events-auto mb-3">
             {error}
           </Notice>
         )}
-        <Button size="lg" className="mb-4 w-full" onClick={save} loading={pending}>
+        <Button
+          size="lg"
+          className="pointer-events-auto mb-4 w-full"
+          onClick={save}
+          loading={pending}
+        >
           C&apos;est noté
         </Button>
       </div>
