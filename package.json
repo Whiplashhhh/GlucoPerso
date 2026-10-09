@@ -47,7 +47,7 @@
     "@commitlint/config-conventional": "^21.2.3",
     "@playwright/test": "^1.64.0",
     "@tailwindcss/turbopack": "^4",
-    "@types/node": "^24.19.2",
+    "@types/node": "^26.6.4",
     "@types/nodemailer": "^8.0.2",
     "@types/pdfkit": "^0.17.6",
     "@types/pg": "^8.23.1",
