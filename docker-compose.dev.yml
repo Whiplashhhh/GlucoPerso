@@ -1,0 +1,21 @@
+# Local development database only. Production stack: docker-compose.yml.
+services:
+  db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: glucoperso
+      POSTGRES_PASSWORD: glucoperso
+      POSTGRES_DB: glucoperso
+    ports:
+      - "127.0.0.1:5433:5432"
+    volumes:
+      - glucoperso-dev-db:/var/lib/postgresql/data
+      - ./docker/dev-init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U glucoperso -d glucoperso"]
+      interval: 2s
+      timeout: 3s
+      retries: 20
+
+volumes:
+  glucoperso-dev-db:

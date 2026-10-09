@@ -57,20 +57,20 @@ docker/ Dockerfile, docker-compose.yml, Caddyfile, scripts/backup.sh, restore.sh
 
 ## 2. Modèle de données (Prisma / PostgreSQL)
 
-| Modèle | Rôle | Champs clés |
-|---|---|---|
-| `User`, `Session`, `Account`, `Verification` | Better Auth | `name` = prénom |
-| `UserSettings` | préférences | unité glycémie, incrément stylo, seuil hypo (g/L), seuil confirmation dose, bornes ratio, thème, fuseau, `onboardedAt` |
-| `Ratio` | ratio courant par moment | `moment` (`DEFAULT`, `BREAKFAST`, `LUNCH`, `AFTERNOON_SNACK`, `DINNER`, `SNACK`), `gramsPerUnit` |
-| `RatioChange` | historique | ancien, nouveau, origine (`ONBOARDING`/`MANUAL`/`SUGGESTION`), justification |
-| `RatioSuggestion` | suggestions proposées | valeur actuelle/suggérée, repas concernés, statut, date (règle des 7 jours) |
-| `Dish` | plat regroupé | `name`, `normalizedName` (index GIN trigram), `isFavorite` |
-| `Meal` | repas | date, moment, glucides, unités, correction, glycémie avant, tags[], notes, résultat, glycémies après/min/max, hypo ressucrée, note de retour, `deletedAt` (annulation) |
-| `Photo` | photo WebP | clé aléatoire, dimensions, propriétaire, repas |
-| `BasalLog` | insuline lente | jour, unités, heure |
-| `RecoveryCode` | codes de récupération | hash SHA-256, `usedAt` |
-| `InviteCode` | invitations | hash, expiration, `usedAt` |
-| `AuthThrottle` | verrouillage progressif | clé, échecs, `lockedUntil` |
+| Modèle                                       | Rôle                     | Champs clés                                                                                                                                                            |
+| -------------------------------------------- | ------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `User`, `Session`, `Account`, `Verification` | Better Auth              | `name` = prénom                                                                                                                                                        |
+| `UserSettings`                               | préférences              | unité glycémie, incrément stylo, seuil hypo (g/L), seuil confirmation dose, bornes ratio, thème, fuseau, `onboardedAt`                                                 |
+| `Ratio`                                      | ratio courant par moment | `moment` (`DEFAULT`, `BREAKFAST`, `LUNCH`, `AFTERNOON_SNACK`, `DINNER`, `SNACK`), `gramsPerUnit`                                                                       |
+| `RatioChange`                                | historique               | ancien, nouveau, origine (`ONBOARDING`/`MANUAL`/`SUGGESTION`), justification                                                                                           |
+| `RatioSuggestion`                            | suggestions proposées    | valeur actuelle/suggérée, repas concernés, statut, date (règle des 7 jours)                                                                                            |
+| `Dish`                                       | plat regroupé            | `name`, `normalizedName` (index GIN trigram), `isFavorite`                                                                                                             |
+| `Meal`                                       | repas                    | date, moment, glucides, unités, correction, glycémie avant, tags[], notes, résultat, glycémies après/min/max, hypo ressucrée, note de retour, `deletedAt` (annulation) |
+| `Photo`                                      | photo WebP               | clé aléatoire, dimensions, propriétaire, repas                                                                                                                         |
+| `BasalLog`                                   | insuline lente           | jour, unités, heure                                                                                                                                                    |
+| `RecoveryCode`                               | codes de récupération    | hash SHA-256, `usedAt`                                                                                                                                                 |
+| `InviteCode`                                 | invitations              | hash, expiration, `usedAt`                                                                                                                                             |
+| `AuthThrottle`                               | verrouillage progressif  | clé, échecs, `lockedUntil`                                                                                                                                             |
 
 Glycémies stockées en **g/L** (canonique), converties à l'affichage.
 
