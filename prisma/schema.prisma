@@ -1,0 +1,315 @@
+// GlucoPerso data model. Every domain row belongs to a user (userId) and is
+// always queried with that filter (see src/server/repos).
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ───────────────────────────── Enums ─────────────────────────────
+
+enum GlucoseUnit {
+  G_L
+  MG_DL
+}
+
+enum ThemePreference {
+  SYSTEM
+  LIGHT
+  DARK
+}
+
+/// DEFAULT is the general ratio, used for any moment without its own ratio.
+enum Moment {
+  DEFAULT
+  BREAKFAST
+  LUNCH
+  AFTERNOON_SNACK
+  DINNER
+  SNACK
+}
+
+enum MealOutcome {
+  TOO_MUCH
+  PERFECT
+  NOT_ENOUGH
+}
+
+enum MealTag {
+  SLOW_ABSORPTION
+  SPORT
+  SICK
+  PERIOD
+  ALCOHOL
+  STRESS
+  ATYPICAL
+}
+
+enum RatioChangeOrigin {
+  ONBOARDING
+  MANUAL
+  SUGGESTION
+}
+
+enum SuggestionStatus {
+  PENDING
+  ACCEPTED
+  DISMISSED
+  DOCTOR
+}
+
+// ─────────────────────────── Better Auth ───────────────────────────
+
+model User {
+  id            String   @id
+  name          String
+  email         String   @unique
+  emailVerified Boolean  @default(false)
+  image         String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  sessions      Session[]
+  accounts      Account[]
+  settings      UserSettings?
+  ratios        Ratio[]
+  ratioChanges  RatioChange[]
+  suggestions   RatioSuggestion[]
+  dishes        Dish[]
+  meals         Meal[]
+  photos        Photo[]
+  basalLogs     BasalLog[]
+  recoveryCodes RecoveryCode[]
+}
+
+model Session {
+  id        String   @id
+  expiresAt DateTime
+  token     String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  ipAddress String?
+  userAgent String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model Account {
+  id                    String    @id
+  accountId             String
+  providerId            String
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  @@index([userId])
+}
+
+model Verification {
+  id         String   @id
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([identifier])
+}
+
+model RateLimit {
+  id          String @id
+  key         String @unique
+  count       Int
+  lastRequest BigInt
+}
+
+// ─────────────────────────── Security ───────────────────────────
+
+/// Progressive lockout bookkeeping. `key` is a hash, never a raw email.
+model AuthThrottle {
+  key         String    @id
+  failures    Int       @default(0)
+  lockedUntil DateTime?
+  updatedAt   DateTime  @updatedAt
+}
+
+model InviteCode {
+  id        String    @id @default(cuid())
+  codeHash  String    @unique
+  note      String?
+  expiresAt DateTime?
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+}
+
+model RecoveryCode {
+  id        String    @id @default(cuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  codeHash  String    @unique
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([userId])
+}
+
+// ─────────────────────────── Domain ───────────────────────────
+
+model UserSettings {
+  userId               String          @id
+  user                 User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  glucoseUnit          GlucoseUnit     @default(G_L)
+  /// Rapid pen increment in units (0.5 or 1).
+  penIncrement         Float           @default(1)
+  /// Thresholds stored in g/L.
+  hypoThreshold        Float           @default(0.7)
+  highThreshold        Float           @default(1.8)
+  doseConfirmThreshold Float           @default(15)
+  ratioMin             Float           @default(3)
+  ratioMax             Float           @default(50)
+  usePerMomentRatios   Boolean         @default(false)
+  theme                ThemePreference @default(SYSTEM)
+  timezone             String          @default("Europe/Paris")
+  onboardedAt          DateTime?
+  createdAt            DateTime        @default(now())
+  updatedAt            DateTime        @updatedAt
+}
+
+/// Current ratio "1 U for gramsPerUnit g", one row per moment.
+model Ratio {
+  id           String   @id @default(cuid())
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  moment       Moment
+  gramsPerUnit Float
+  updatedAt    DateTime @updatedAt
+
+  @@unique([userId, moment])
+}
+
+model RatioChange {
+  id            String            @id @default(cuid())
+  userId        String
+  user          User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  moment        Moment
+  fromValue     Float?
+  toValue       Float
+  origin        RatioChangeOrigin
+  justification String?
+  createdAt     DateTime          @default(now())
+
+  @@index([userId, createdAt])
+}
+
+model RatioSuggestion {
+  id          String           @id @default(cuid())
+  userId      String
+  user        User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  moment      Moment
+  fromValue   Float
+  toValue     Float
+  /// The outcome that drove the suggestion (TOO_MUCH or NOT_ENOUGH).
+  signal      MealOutcome
+  mealIds     String[]
+  explanation String
+  status      SuggestionStatus @default(PENDING)
+  createdAt   DateTime         @default(now())
+  decidedAt   DateTime?
+
+  @@index([userId, moment, createdAt])
+}
+
+model Dish {
+  id             String   @id @default(cuid())
+  userId         String
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name           String
+  /// Lower-cased, accent-free name used for trigram similarity.
+  normalizedName String
+  isFavorite     Boolean  @default(false)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  meals          Meal[]
+
+  @@index([userId])
+  @@index([normalizedName(ops: raw("gin_trgm_ops"))], type: Gin)
+}
+
+model Meal {
+  id              String       @id @default(cuid())
+  userId          String
+  user            User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  dishId          String?
+  dish            Dish?        @relation(fields: [dishId], references: [id], onDelete: SetNull)
+  name            String
+  eatenAt         DateTime
+  moment          Moment
+  carbsGrams      Float
+  /// Total rapid units injected for the meal, correction included.
+  insulinUnits    Float
+  /// Part of insulinUnits that corrected a high reading. Excluded from ratios.
+  correctionUnits Float        @default(0)
+  /// Ratio in force when the meal was logged (for history).
+  ratioUsed       Float?
+  glucoseBefore   Float?
+  tags            MealTag[]
+  notes           String?
+  outcome         MealOutcome?
+  outcomeAt       DateTime?
+  glucoseAfter    Float?
+  glucoseLow      Float?
+  glucoseHigh     Float?
+  hypoTreated     Boolean?
+  outcomeNote     String?
+  feedbackSkipped Boolean      @default(false)
+  deletedAt       DateTime?
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+  photos          Photo[]
+
+  @@index([userId, eatenAt])
+  @@index([userId, dishId])
+}
+
+model Photo {
+  id         String   @id @default(cuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  mealId     String?
+  meal       Meal?    @relation(fields: [mealId], references: [id], onDelete: SetNull)
+  /// Random file key; files live outside public/ and are served by an
+  /// authenticated route that checks ownership.
+  storageKey String   @unique
+  width      Int
+  height     Int
+  createdAt  DateTime @default(now())
+
+  @@index([userId])
+  @@index([mealId])
+}
+
+model BasalLog {
+  id      String   @id @default(cuid())
+  userId  String
+  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  /// Local calendar day (YYYY-MM-DD) in the user's timezone.
+  day     String
+  units   Float
+  takenAt DateTime
+
+  @@unique([userId, day])
+}
