@@ -1,0 +1,12 @@
+node_modules
+.next
+coverage
+playwright-report
+test-results
+data
+backups
+screenshots
+src/generated
+package-lock.json
+next-env.d.ts
+PROMPT_GLUCO_PERSO.md

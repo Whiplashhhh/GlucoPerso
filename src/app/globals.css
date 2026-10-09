@@ -1,0 +1,230 @@
+@import "tailwindcss";
+
+/*
+ * GlucoPerso design tokens.
+ * Colours are semantic CSS variables that swap for dark mode, so components
+ * never need `dark:` utilities. Theme: system by default, forced with
+ * `.light` / `.dark` on <html> (set server-side from the user's setting).
+ * Dark values are duplicated below because CSS cannot share a block between
+ * a class selector and a media query.
+ */
+
+:root {
+  color-scheme: light;
+
+  /* Surfaces: warm cream, never pure white */
+  --bg: #fbf4ea;
+  --bg-deep: #f5e9da;
+  --surface: #fffaf3;
+  --surface-2: #f7ecdf;
+  --surface-3: #efe0cf;
+  --line: #e8d7c4;
+
+  /* Ink */
+  --ink: #3a2930;
+  --ink-soft: #6d5560;
+  --ink-faint: #8f7781;
+
+  /* Accent: peach / coral */
+  --coral: #f08a6c;
+  --coral-strong: #e0694a;
+  --coral-ink: #a8452a;
+  --coral-soft: #fde1d6;
+  --on-coral: #3a1d16;
+
+  /* Outcomes */
+  --mint: #57b886;
+  --mint-soft: #d7f2e2;
+  --mint-ink: #1f5f3e;
+  --lavender: #9a84dc;
+  --lavender-soft: #e9e2fa;
+  --lavender-ink: #4b3a8a;
+  --amber: #e9a640;
+  --amber-soft: #fcebc9;
+  --amber-ink: #7a4b0b;
+
+  --sky-soft: #dcecf7;
+
+  --shadow-color: 32deg 40% 45%;
+  --grain-opacity: 0.05;
+}
+
+:root.dark {
+  color-scheme: dark;
+  --bg: #17122a;
+  --bg-deep: #120e22;
+  --surface: #221a3a;
+  --surface-2: #2b2247;
+  --surface-3: #352a56;
+  --line: #3b3060;
+
+  --ink: #f7ede6;
+  --ink-soft: #cdbccb;
+  --ink-faint: #a495ad;
+
+  --coral: #f59a7e;
+  --coral-strong: #f7ab93;
+  --coral-ink: #ffb9a2;
+  --coral-soft: #4a2c3d;
+  --on-coral: #2a1414;
+
+  --mint: #74d3a2;
+  --mint-soft: #1f3a3a;
+  --mint-ink: #a6ebc7;
+  --lavender: #b6a5f3;
+  --lavender-soft: #2f2860;
+  --lavender-ink: #d4c9fb;
+  --amber: #f2c06b;
+  --amber-soft: #3e3027;
+  --amber-ink: #f9d99a;
+
+  --sky-soft: #1f2b4d;
+
+  --shadow-color: 260deg 60% 4%;
+  --grain-opacity: 0.07;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not(.light) {
+    color-scheme: dark;
+    --bg: #17122a;
+    --bg-deep: #120e22;
+    --surface: #221a3a;
+    --surface-2: #2b2247;
+    --surface-3: #352a56;
+    --line: #3b3060;
+
+    --ink: #f7ede6;
+    --ink-soft: #cdbccb;
+    --ink-faint: #a495ad;
+
+    --coral: #f59a7e;
+    --coral-strong: #f7ab93;
+    --coral-ink: #ffb9a2;
+    --coral-soft: #4a2c3d;
+    --on-coral: #2a1414;
+
+    --mint: #74d3a2;
+    --mint-soft: #1f3a3a;
+    --mint-ink: #a6ebc7;
+    --lavender: #b6a5f3;
+    --lavender-soft: #2f2860;
+    --lavender-ink: #d4c9fb;
+    --amber: #f2c06b;
+    --amber-soft: #3e3027;
+    --amber-ink: #f9d99a;
+
+    --sky-soft: #1f2b4d;
+
+    --shadow-color: 260deg 60% 4%;
+    --grain-opacity: 0.07;
+  }
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-bg-deep: var(--bg-deep);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-surface-3: var(--surface-3);
+  --color-line: var(--line);
+  --color-ink: var(--ink);
+  --color-ink-soft: var(--ink-soft);
+  --color-ink-faint: var(--ink-faint);
+  --color-coral: var(--coral);
+  --color-coral-strong: var(--coral-strong);
+  --color-coral-ink: var(--coral-ink);
+  --color-coral-soft: var(--coral-soft);
+  --color-on-coral: var(--on-coral);
+  --color-mint: var(--mint);
+  --color-mint-soft: var(--mint-soft);
+  --color-mint-ink: var(--mint-ink);
+  --color-lavender: var(--lavender);
+  --color-lavender-soft: var(--lavender-soft);
+  --color-lavender-ink: var(--lavender-ink);
+  --color-amber: var(--amber);
+  --color-amber-soft: var(--amber-soft);
+  --color-amber-ink: var(--amber-ink);
+  --color-sky-soft: var(--sky-soft);
+
+  --font-sans: "Nunito Variable", ui-rounded, system-ui, sans-serif;
+  --font-display: "Fraunces Variable", ui-serif, Georgia, serif;
+
+  --radius-card: 24px;
+  --radius-sheet: 28px;
+
+  --shadow-soft:
+    0 1px 2px hsl(var(--shadow-color) / 0.08), 0 6px 16px -4px hsl(var(--shadow-color) / 0.14),
+    0 18px 40px -12px hsl(var(--shadow-color) / 0.18);
+  --shadow-lift:
+    0 2px 4px hsl(var(--shadow-color) / 0.1), 0 12px 28px -6px hsl(var(--shadow-color) / 0.22),
+    0 28px 60px -18px hsl(var(--shadow-color) / 0.24);
+}
+
+@layer base {
+  html {
+    -webkit-tap-highlight-color: transparent;
+    text-size-adjust: 100%;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    min-height: 100dvh;
+  }
+
+  /* Subtle paper grain over the whole app */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    opacity: var(--grain-opacity);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  h1,
+  h2,
+  h3,
+  .font-display {
+    font-family: var(--font-display);
+    font-variation-settings: "SOFT" 100;
+    letter-spacing: -0.01em;
+  }
+
+  :focus-visible {
+    outline: 3px solid var(--coral);
+    outline-offset: 3px;
+    border-radius: 12px;
+  }
+
+  ::selection {
+    background: var(--coral-soft);
+  }
+}
+
+@utility tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+@utility pt-safe {
+  padding-top: env(safe-area-inset-top);
+}
+
+@utility pb-safe {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
