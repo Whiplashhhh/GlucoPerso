@@ -35,4 +35,11 @@ test("app screens", async ({ page }) => {
     await page.goto(path);
     await shoot(page, name);
   }
+
+  await page.goto("/repas/nouveau");
+  await shoot(page, "20-saisie-vide");
+  await page.getByLabel("Qu'est-ce qu'on mange ?").fill("Raclette");
+  for (const key of ["6", "5"]) await page.getByRole("button", { name: key, exact: true }).click();
+  await page.getByRole("button", { name: /Absorption lente/ }).click();
+  await shoot(page, "21-saisie-remplie");
 });

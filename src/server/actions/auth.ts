@@ -14,13 +14,7 @@ import {
   remainingRecoveryCodes,
 } from "@/server/repos/recovery";
 import { clientIp } from "@/server/request";
-import {
-  LockedError,
-  assertNotLocked,
-  consumeAttempt,
-  registerFailure,
-  registerSuccess,
-} from "@/server/throttle";
+import { LockedError, assertNotLocked, registerFailure, registerSuccess } from "@/server/throttle";
 
 const SIGN_UP_UNAVAILABLE = "Les inscriptions sont fermées pour le moment.";
 
@@ -34,8 +28,10 @@ export async function registerAction(
   if (!parsed.success) return { fieldErrors: fieldErrorsOf(parsed.error) };
   const { name, email, password, inviteCode } = parsed.data;
 
+  // Only failures count: a valid invite is already a natural limit.
+  const ipKey = throttleKey("signup", await clientIp());
   try {
-    await consumeAttempt(throttleKey("signup", await clientIp()));
+    await assertNotLocked(ipKey);
   } catch (error) {
     if (error instanceof LockedError) return { error: error.message };
     throw error;
@@ -45,6 +41,7 @@ export async function registerAction(
   if (env.REGISTRATION_MODE === "invite") {
     inviteId = inviteCode ? await claimInvite(inviteCode) : null;
     if (!inviteId) {
+      await registerFailure(ipKey);
       return { fieldErrors: { inviteCode: "Ce code d'invitation n'est pas (ou plus) valable." } };
     }
   }
@@ -58,6 +55,7 @@ export async function registerAction(
     userId = result.user.id;
   } catch {
     if (inviteId) await releaseInvite(inviteId);
+    await registerFailure(ipKey);
     // Same message whether the email exists or not (no account enumeration).
     return { error: "Impossible de créer ce compte. Vérifie l'email ou connecte-toi." };
   }
@@ -75,9 +73,10 @@ export async function recoverAction(
   const { email, code, password } = parsed.data;
 
   const emailKey = throttleKey("recover", email);
+  const ipKey = throttleKey("recover-ip", await clientIp());
   try {
     await assertNotLocked(emailKey);
-    await consumeAttempt(throttleKey("recover-ip", await clientIp()));
+    await assertNotLocked(ipKey);
   } catch (error) {
     if (error instanceof LockedError) return { error: error.message };
     throw error;
@@ -88,6 +87,7 @@ export async function recoverAction(
   const user = await db.user.findUnique({ where: { email }, select: { id: true } });
   if (!user || !(await consumeRecoveryCode(user.id, code))) {
     await registerFailure(emailKey);
+    await registerFailure(ipKey);
     return { error: generic };
   }
 
