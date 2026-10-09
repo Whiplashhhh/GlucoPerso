@@ -1,6 +1,9 @@
 import type { Metadata, Viewport } from "next";
+import { cookies } from "next/headers";
 import "@fontsource-variable/fraunces/soft.css";
 import "@fontsource-variable/nunito";
+import { MotionProvider } from "@/components/motion-provider";
+import { THEME_COOKIE, themeClass } from "@/lib/theme";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -20,10 +23,13 @@ export const viewport: Viewport = {
   ],
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default async function RootLayout({ children }: LayoutProps<"/">) {
+  const theme = (await cookies()).get(THEME_COOKIE)?.value;
   return (
-    <html lang="fr">
-      <body>{children}</body>
+    <html lang="fr" className={themeClass(theme)}>
+      <body>
+        <MotionProvider>{children}</MotionProvider>
+      </body>
     </html>
   );
 }

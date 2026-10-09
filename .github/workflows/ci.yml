@@ -15,6 +15,9 @@ permissions:
 env:
   NODE_VERSION: 24
   NEXT_TELEMETRY_DISABLED: 1
+  # Needed by prisma.config.ts even for `prisma generate`; jobs with a real
+  # database override it.
+  DATABASE_URL: postgresql://glucoperso:glucoperso@localhost:5432/glucoperso_test
 
 jobs:
   quality:
@@ -50,7 +53,7 @@ jobs:
           --health-timeout 3s
           --health-retries 20
     env:
-      DATABASE_URL: postgresql://glucoperso:glucoperso@localhost:5432/glucoperso_test
+      E2E_DATABASE_URL: postgresql://glucoperso:glucoperso@localhost:5432/glucoperso_test
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-node@v5
