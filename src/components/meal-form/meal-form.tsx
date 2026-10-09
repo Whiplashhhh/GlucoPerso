@@ -420,13 +420,18 @@ export function MealForm({ ratios, settings }: { ratios: RatioTable; settings: M
         </section>
       </div>
 
-      <div className="fixed inset-x-0 bottom-0 z-30 mx-auto w-full max-w-md bg-gradient-to-t from-bg via-bg/95 to-transparent px-5 pt-8 pb-safe">
+      <div className="pointer-events-none fixed inset-x-0 bottom-0 z-30 mx-auto w-full max-w-md bg-gradient-to-t from-bg via-bg/95 to-transparent px-5 pt-8 pb-safe">
         {formError && (
-          <Notice tone="warm" className="mb-3">
+          <Notice tone="warm" className="pointer-events-auto mb-3">
             {formError}
           </Notice>
         )}
-        <Button size="lg" className="mb-4 w-full" loading={pending} onClick={() => submit(false)}>
+        <Button
+          size="lg"
+          className="pointer-events-auto mb-4 w-full"
+          loading={pending}
+          onClick={() => submit(false)}
+        >
           Enregistrer le repas
         </Button>
       </div>
