@@ -24,3 +24,13 @@ Format : date — décision — raison.
 - **2026-10-10 — argon2id** via `@node-rs/argon2` (paramètres OWASP : 19 Mio, t=2, p=1).
 - **2026-10-10 — Thème** : cookie `gp-theme` lu côté serveur (pas de script inline, pas de flash) ; sans cookie on suit le système.
 - **2026-10-10 — Config ESLint** : laissée à celle du scaffold Next (core-web-vitals + TypeScript) ; un hook local protège ce fichier. Elle ne contient pas de règles de style en conflit avec Prettier.
+
+## Ratio adaptatif
+
+- **2026-10-10 — Pondération** : poids divisé par deux tous les 10 jours (un repas à 21 jours compte ~0,23). Fenêtre de 21 jours bornes incluses.
+- **2026-10-10 — Majorité claire et récente** : parmi les 5 derniers repas éligibles, au moins 3 dans le même sens, plus que le sens opposé, et au plus 1 en sens opposé (3/3, 3/4, 4/5, 3/5 avec ≤ 1 contraire).
+- **2026-10-10 — Valeur proposée** : estimation pondérée (pile poil → ratio effectif ; trop → effectif × 1,1 ; pas assez → effectif × 0,9). Si l'estimation contredit la majorité récente, pas de 0,5 g dans le sens signalé. Plafond ±10 %, arrondi à 0,5 g _vers_ le ratio actuel (le plafond n'est jamais dépassé), bornes absolues 3–50 g/U. Si le résultat égale le ratio actuel : pas de suggestion.
+- **2026-10-10 — Délai de 7 jours** : une suggestion n'est enregistrée (table `RatioSuggestion`) qu'au moment où elle répond (Appliquer / Pas maintenant / J'en parle à mon diabéto) ; le délai de 7 jours part de cette réponse. Tant qu'elle ne répond pas, la carte reste visible.
+- **2026-10-10 — Application** : l'action serveur recalcule la suggestion et n'applique que la valeur proposée par le moteur ; le client n'envoie que le moment et la décision.
+- **2026-10-10 — Alerte bienveillante** : ≥ 2 hypos ressucrées sur 7 jours → message invitant à en parler à l'équipe médicale.
+- **2026-10-10 — Saisie** : la carte de dose indicative occupe un emplacement de hauteur fixe pour que le pavé numérique ne bouge jamais pendant la frappe.
