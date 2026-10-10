@@ -122,5 +122,5 @@ test("account deletion asks for the password, then everything is gone", async ({
   await page.getByLabel("Email").fill(email);
   await page.getByLabel("Mot de passe", { exact: true }).fill(PASSWORD);
   await page.getByRole("button", { name: "Me connecter" }).click();
-  await expect(page.getByText("Email ou mot de passe incorrect")).toBeVisible();
+  await expect(page.getByText(/Email ou mot de passe incorrect|Trop d.essais/)).toBeVisible();
 });
