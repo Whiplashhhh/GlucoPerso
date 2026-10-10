@@ -18,7 +18,7 @@ test("home shows the ratio hero and asks how an earlier meal went", async ({ pag
   await page.getByRole("button", { name: "0", exact: true }).click();
   await page.getByRole("button", { name: "Utiliser" }).click();
   await page.getByRole("button", { name: "Enregistrer le repas" }).click();
-  await page.waitForURL(/ajout=/);
+  await page.waitForURL(/ajout=/, { waitUntil: "commit" });
 
   await expect(page.getByText("C'est noté ! Je te demanderai")).toBeVisible();
   await page.getByRole("link", { name: /Comment ça s'est passé pour crêpes/ }).click();

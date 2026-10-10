@@ -14,7 +14,10 @@ const ITEMS = [
 ] as const;
 
 function isActive(pathname: string, href: string) {
-  return href === "/" ? pathname === "/" : pathname.startsWith(href);
+  if (href === "/") return pathname === "/";
+  // Search is reached from the calendar header.
+  if (href === "/calendrier" && pathname.startsWith("/recherche")) return true;
+  return pathname.startsWith(href);
 }
 
 export function BottomNav() {

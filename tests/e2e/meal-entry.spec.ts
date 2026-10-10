@@ -34,7 +34,7 @@ test("log a meal in a few taps, then find it again as « Déjà mangé »", asyn
   await page.getByRole("button", { name: "Utiliser" }).click();
   await page.getByRole("button", { name: /Absorption lente/ }).click();
   await page.getByRole("button", { name: "Enregistrer le repas" }).click();
-  await page.waitForURL(/\/\?ajout=/);
+  await page.waitForURL(/\/\?ajout=/, { waitUntil: "commit" });
 
   await page.goto("/repas/nouveau");
   await page.getByLabel("Qu'est-ce qu'on mange ?").fill("raclet");
@@ -55,7 +55,7 @@ test("a big dose asks for a gentle confirmation", async ({ page }) => {
   await page.getByRole("button", { name: "Enregistrer le repas" }).click();
   await expect(page.getByRole("dialog", { name: "C'est bien 18 unités ?" })).toBeVisible();
   await page.getByRole("button", { name: "Oui, c'est bien ça" }).click();
-  await page.waitForURL(/\/\?ajout=/);
+  await page.waitForURL(/\/\?ajout=/, { waitUntil: "commit" });
 });
 
 test("a non-image file is refused by the photo upload", async ({ page }) => {

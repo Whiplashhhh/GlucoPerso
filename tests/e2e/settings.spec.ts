@@ -55,7 +55,7 @@ test("exports: CSV, PDF and the full ZIP, only for the owner", async ({ page, pl
   await page.getByRole("button", { name: "0", exact: true }).click();
   await page.getByRole("button", { name: "Utiliser" }).click();
   await page.getByRole("button", { name: "Enregistrer le repas" }).click();
-  await page.waitForURL(/ajout=/);
+  await page.waitForURL(/ajout=/, { waitUntil: "commit" });
 
   const to = format(new Date(), "yyyy-MM-dd");
   const from = format(subDays(new Date(), 30), "yyyy-MM-dd");
