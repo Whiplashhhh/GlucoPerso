@@ -11,7 +11,7 @@ test("give feedback: readings pre-select, her choice wins, pile poil celebrates"
   await page.getByRole("button", { name: "0", exact: true }).click();
   await page.getByRole("button", { name: "Utiliser" }).click();
   await page.getByRole("button", { name: "Enregistrer le repas" }).click();
-  await page.waitForURL(/ajout=/);
+  await page.waitForURL(/ajout=/, { waitUntil: "commit" });
   const mealId = new URL(page.url()).searchParams.get("ajout");
 
   await page.goto(`/retour/${mealId}`);

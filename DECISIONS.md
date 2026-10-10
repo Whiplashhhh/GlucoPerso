@@ -53,3 +53,11 @@ Format : date — décision — raison.
 - **2026-10-10 — Exports** : 30 derniers jours par défaut, 3 ans max ; CSV `;` + BOM, cellules commençant par `= + - @` neutralisées (injection de formules) ; PDF A4 sans emoji ni photo. ZIP RGPD : toutes les données personnelles y compris repas supprimés et métadonnées de session, sans hachés de mot de passe, jetons ni codes.
 - **2026-10-10 — Suppression du compte** : mot de passe redemandé (échecs limités), fichiers photo puis utilisateur (cascade).
 - **2026-10-10 — Graphiques** : barres de résultats en HTML avec motifs (rayures, pois) et nombres en texte, pour ne pas dépendre de la couleur ; courbe des ratios Recharts en marches avec couleurs en variables CSS (mode sombre automatique).
+
+## Calendrier, détail, recherche
+
+- **2026-10-10 — Calendrier** : le mois et le jour vivent dans l'URL (`/calendrier?mois=2026-10&jour=2026-10-09`). Le serveur charge d'un coup tous les repas de la grille (jours voisins compris) dans le fuseau de l'utilisatrice ; toucher un jour met l'URL à jour sans aller-retour serveur (`history.replaceState`), changer de mois recharge les données.
+- **2026-10-10 — Détail du repas** dans le groupe `(app)` (barre de navigation visible, bouton retour) ; l'édition dans `(sheet)`. « Modifier » remplace l'entrée d'historique (aller et retour par `replace`) pour que le retour arrière ne montre jamais une version périmée.
+- **2026-10-10 — Édition** : `ratioUsed` garde le ratio en vigueur lors de la saisie (historique) ; une photo remplacée ou retirée est supprimée (fichiers + ligne) immédiatement. Une grosse dose déjà confirmée à la saisie n'est pas redemandée si elle ne change pas.
+- **2026-10-10 — Suppression** : suppression douce optimiste (le repas disparaît de toutes les listes tout de suite), toast « Repas supprimé · Annuler » porté par le layout `(app)` pour survivre au retour arrière. Les repas supprimés depuis plus de 7 jours sont purgés (photos comprises) à chaque nouvelle suppression.
+- **2026-10-10 — Recherche** : nom, notes et note de retour (insensible à la casse), et contextes cumulatifs (tous les tags choisis, `hasEvery`). 200 résultats max, groupés par mois.

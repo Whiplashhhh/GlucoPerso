@@ -1,10 +1,11 @@
 import { HeartHandshake } from "lucide-react";
 import Link from "next/link";
 import { BasalCheck } from "@/components/home/basal-check";
-import { type MealRowData, MealRow } from "@/components/home/meal-row";
+import type { MealRowData } from "@/components/home/meal-row";
 import { RatioHero, type RatioSlide } from "@/components/home/ratio-hero";
 import { SuggestionCard } from "@/components/home/suggestion-card";
 import { Peach, Sun } from "@/components/illustrations/buddies";
+import { MealList } from "@/components/meals/meal-list";
 import { MedicalNote } from "@/components/medical-note";
 import { FlashToast } from "@/components/toast";
 import { WORDS_OF_THE_DAY, greeting, pickForDay } from "@/lib/copy";
@@ -114,22 +115,18 @@ export default async function HomePage({ searchParams }: PageProps<"/">) {
         <h2 id="today-title" className="text-2xl font-semibold">
           Aujourd&apos;hui
         </h2>
-        {todayRows.length ? (
-          <ul className="flex flex-col gap-2">
-            {todayRows.map((meal) => (
-              <li key={meal.id}>
-                <MealRow meal={meal} />
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <div className="flex flex-col items-center gap-2 rounded-[24px] border-2 border-dashed border-line px-6 py-7 text-center">
-            <Peach className="w-20" mood="calm" />
-            <p className="font-semibold text-ink-soft">
-              Rien ici pour l&apos;instant… ton estomac attend son heure 🍽️
-            </p>
-          </div>
-        )}
+        <MealList
+          meals={todayRows}
+          label="Repas d'aujourd'hui"
+          empty={
+            <div className="flex flex-col items-center gap-2 rounded-[24px] border-2 border-dashed border-line px-6 py-7 text-center">
+              <Peach className="w-20" mood="calm" />
+              <p className="font-semibold text-ink-soft">
+                Rien ici pour l&apos;instant… ton estomac attend son heure 🍽️
+              </p>
+            </div>
+          }
+        />
       </section>
 
       <aside className="rounded-[24px] bg-surface-2 p-5">
