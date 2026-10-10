@@ -18,13 +18,14 @@ import { MOMENT_EMOJI, MOMENT_LABEL } from "@/lib/moments";
 import { OUTCOME_INFO } from "@/lib/outcomes";
 import { TAG_INFO } from "@/lib/tags";
 import { getMeal } from "@/server/repos/meals";
+import { idParam } from "@/server/params";
 import { requireAppUser } from "@/server/session";
 
 export const metadata: Metadata = { title: "Repas" };
 
 export default async function MealDetailPage({ params }: PageProps<"/repas/[id]">) {
   const { user, settings } = await requireAppUser();
-  const { id } = await params;
+  const id = await idParam(params);
   const meal = await getMeal(user.id, id);
   if (!meal) notFound();
 

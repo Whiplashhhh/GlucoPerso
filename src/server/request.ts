@@ -1,13 +1,14 @@
 import "server-only";
 import { headers } from "next/headers";
+import { env } from "@/lib/env";
+import { clientIpFromForwarded } from "@/lib/security/ip";
 
 /**
- * Best-effort client IP for throttling. Behind the documented Caddy setup the
- * first X-Forwarded-For entry is the real client (Caddy overwrites the header
- * for untrusted peers).
+ * Client IP for throttling sign-up and recovery, resolved from
+ * `X-Forwarded-For` with the same rules as Better Auth (see TRUSTED_PROXIES in
+ * docs/deploiement.md). `X-Real-IP` is ignored: it is trivially forged.
  */
 export async function clientIp(): Promise<string> {
   const list = await headers();
-  const forwarded = list.get("x-forwarded-for")?.split(",")[0]?.trim();
-  return forwarded || list.get("x-real-ip") || "local";
+  return clientIpFromForwarded(list.get("x-forwarded-for"), env.TRUSTED_PROXIES);
 }

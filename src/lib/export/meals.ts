@@ -74,7 +74,7 @@ export function exportHeader(unit: GlucoseUnit): string[] {
 }
 
 /** Text cells starting like a formula are neutralised (CSV injection). */
-const FORMULA_START = /^[=+\-@\t\r]/;
+const FORMULA_START = /^\s*[=+\-@\t\r]/;
 
 /** Escapes one cell for a `;`-separated CSV read by French Excel. */
 export function csvCell(value: string): string {

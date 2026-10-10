@@ -17,25 +17,31 @@ export async function assertNotLocked(key: string, now = new Date()): Promise<vo
   }
 }
 
+/**
+ * Counts one failure. The row is locked (`SELECT … FOR UPDATE`) while the
+ * new count is computed, so a burst of parallel attempts can't lose
+ * increments and every failure weighs on the lockout.
+ */
 export async function registerFailure(key: string, now = new Date()): Promise<void> {
-  const entry = await db.authThrottle.findUnique({ where: { key } });
-  const stale = !entry || now.getTime() - entry.updatedAt.getTime() > FAILURE_MEMORY_MS;
-  const failures = (stale ? 0 : entry.failures) + 1;
-  const lockMs = lockoutDurationMs(failures);
-  const lockedUntil = lockMs > 0 ? new Date(now.getTime() + lockMs) : null;
-  await db.authThrottle.upsert({
-    where: { key },
-    create: { key, failures, lockedUntil },
-    update: { failures, lockedUntil },
+  await db.$transaction(async (tx) => {
+    await tx.$executeRaw`
+      INSERT INTO "AuthThrottle" ("key", "failures", "updatedAt")
+      VALUES (${key}, 0, ${now})
+      ON CONFLICT ("key") DO NOTHING
+    `;
+    const [entry] = await tx.$queryRaw<{ failures: number; updatedAt: Date }[]>`
+      SELECT "failures", "updatedAt" FROM "AuthThrottle" WHERE "key" = ${key} FOR UPDATE
+    `;
+    const stale = !entry || now.getTime() - entry.updatedAt.getTime() > FAILURE_MEMORY_MS;
+    const failures = (stale ? 0 : entry.failures) + 1;
+    const lockMs = lockoutDurationMs(failures);
+    await tx.authThrottle.update({
+      where: { key },
+      data: { failures, lockedUntil: lockMs > 0 ? new Date(now.getTime() + lockMs) : null },
+    });
   });
 }
 
 export async function registerSuccess(key: string): Promise<void> {
   await db.authThrottle.deleteMany({ where: { key } });
-}
-
-/** Simple fixed-budget limiter for actions outside Better Auth (sign-up, recovery). */
-export async function consumeAttempt(key: string, now = new Date()): Promise<void> {
-  await assertNotLocked(key, now);
-  await registerFailure(key, now);
 }

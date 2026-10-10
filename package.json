@@ -99,5 +99,9 @@
       "prettier --write"
     ]
   },
-  "type": "module"
+  "type": "module",
+  "overrides": {
+    "mysql2": "^3.24.5",
+    "deepmerge-ts": "^8.0.2"
+  }
 }

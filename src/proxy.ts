@@ -55,8 +55,11 @@ export function proxy(request: NextRequest) {
 export const config = {
   matcher: [
     {
+      // Folders end with "/" so that e.g. /apiculture or /icons-x still go
+      // through the proxy. Skipped paths get the locked-down CSP of
+      // next.config.ts (no script can run).
       source:
-        "/((?!api|_next/static|_next/image|favicon.ico|manifest.webmanifest|sw.js|icons|apple-touch|splash).*)",
+        "/((?!api/|_next/static/|_next/image|favicon\\.ico|manifest\\.webmanifest|sw\\.js|icons/|apple-touch-icon\\.png|splash/).*)",
       missing: [
         { type: "header", key: "next-router-prefetch" },
         { type: "header", key: "purpose", value: "prefetch" },

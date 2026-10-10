@@ -3,13 +3,14 @@ import { notFound } from "next/navigation";
 import { MealForm } from "@/components/meal-form/meal-form";
 import { getMeal } from "@/server/repos/meals";
 import { getRatioTable } from "@/server/repos/settings";
+import { idParam } from "@/server/params";
 import { requireAppUser } from "@/server/session";
 
 export const metadata: Metadata = { title: "Modifier le repas" };
 
 export default async function EditMealPage({ params }: PageProps<"/repas/[id]/modifier">) {
   const { user, settings } = await requireAppUser();
-  const { id } = await params;
+  const id = await idParam(params);
   const [meal, ratios] = await Promise.all([getMeal(user.id, id), getRatioTable(user.id)]);
   if (!meal) notFound();
   return (

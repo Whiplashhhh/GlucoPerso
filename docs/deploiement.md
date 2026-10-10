@@ -92,8 +92,14 @@ connexion se base sur l'en-tête `X-Forwarded-For`. Caddy le remplace par l'IP
 réelle du client : avec Caddy (intégré ou sur l'hôte), `TRUSTED_PROXIES` peut
 rester vide. Si un autre proxy _ajoute_ son IP à la chaîne (ou si Caddy est
 lui-même derrière un CDN), lister les IP/CIDR de ces proxys dans
-`TRUSTED_PROXIES` (séparées par des virgules). Ne jamais exposer le port 3000
+`TRUSTED_PROXIES` (séparées par des virgules) : la chaîne est alors lue de
+droite à gauche et la première IP qui n'est pas un proxy de confiance est
+celle du client. Sans `TRUSTED_PROXIES`, seul un en-tête à **une seule**
+valeur est cru ; une chaîne de plusieurs valeurs (ou une valeur invalide)
+tombe dans un compteur commun, pour qu'un en-tête forgé ne donne jamais un
+nouveau quota. `X-Real-IP` est ignoré. Ne jamais exposer le port 3000
 directement sur Internet : n'importe qui pourrait alors forger cet en-tête.
+Voir aussi [docs/securite.md](securite.md).
 
 ## HTTPS avec Caddy
 
@@ -157,7 +163,7 @@ que l'appli tourne ou non (la base doit tourner).
 Planification quotidienne (crontab de l'utilisateur qui gère Docker) :
 
 ```cron
-15 3 * * * cd /srv/glucoperso && scripts/backup.sh >> backups/backup.log 2>&1
+15 3 * * * umask 077 && cd /srv/glucoperso && scripts/backup.sh >> backups/backup.log 2>&1
 ```
 
 Les sauvegardes contiennent des données de santé : dossier en droits 700,

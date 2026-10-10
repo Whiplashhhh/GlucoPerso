@@ -9,16 +9,18 @@ test("protected pages send visitors to the login page", async ({ page }) => {
 
 test("register with an invite, onboard, sign out and sign back in", async ({ page }) => {
   const { email } = await registerAndOnboard(page, { name: "Léa" });
-  await expect(page.getByRole("heading", { name: /Coucou Léa/ })).toBeVisible();
+  await expect(page.getByRole("heading", { name: /(Coucou|Bonsoir) Léa/ })).toBeVisible();
 
   await page.getByRole("link", { name: "Moi" }).click();
+  const signOut = page.waitForResponse((response) => response.url().endsWith("/api/auth/sign-out"));
   await page.getByRole("button", { name: "Me déconnecter" }).click();
+  expect((await (await signOut).allHeaders())["clear-site-data"]).toBe('"cache"');
   await expect(page).toHaveURL(/\/connexion$/);
 
   await page.getByLabel("Email").fill(email);
   await page.getByLabel("Mot de passe", { exact: true }).fill(PASSWORD);
   await page.getByRole("button", { name: "Me connecter" }).click();
-  await expect(page.getByRole("heading", { name: /Coucou Léa/ })).toBeVisible();
+  await expect(page.getByRole("heading", { name: /(Coucou|Bonsoir) Léa/ })).toBeVisible();
 });
 
 test("the raw sign-up endpoint is closed and pages carry security headers", async ({ request }) => {
@@ -35,6 +37,30 @@ test("the raw sign-up endpoint is closed and pages carry security headers", asyn
   expect(headers["referrer-policy"]).toBe("strict-origin-when-cross-origin");
   expect(headers["permissions-policy"]).toContain("camera=(self)");
   expect(headers["strict-transport-security"]).toContain("max-age=");
+
+  // API, service worker and static files (not seen by the proxy) are covered too.
+  for (const path of ["/api/photos/inconnue", "/sw.js", "/icons/icon-192.png", "/icons/absente"]) {
+    const other = (await request.get(path)).headers();
+    expect(other["content-security-policy"], path).toContain("default-src");
+    expect(other["content-security-policy"], path).not.toContain("'unsafe-eval'");
+    expect(other["x-content-type-options"], path).toBe("nosniff");
+    expect(other["strict-transport-security"], path).toContain("max-age=");
+  }
+  const api = (await request.get("/api/photos/inconnue")).headers();
+  expect(api["content-security-policy"]).toContain("default-src 'none'");
+  const missing = (await request.get("/icons/absente")).headers();
+  expect(missing["content-security-policy"]).toContain("script-src 'none'");
+});
+
+test("unused Better Auth endpoints are closed", async ({ request }) => {
+  for (const path of [
+    "/api/auth/update-user",
+    "/api/auth/change-password",
+    "/api/auth/delete-user",
+  ]) {
+    const response = await request.post(path, { data: {} });
+    expect(response.status(), path).toBe(404);
+  }
 });
 
 test("an invalid invite code is refused", async ({ page }) => {
