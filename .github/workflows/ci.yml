@@ -24,7 +24,7 @@ jobs:
     name: Lint, types, unit tests, build
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
       - uses: actions/setup-node@v6
         with:
           node-version: ${{ env.NODE_VERSION }}
@@ -55,7 +55,7 @@ jobs:
     env:
       E2E_DATABASE_URL: postgresql://glucoperso:glucoperso@localhost:5432/glucoperso_test
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
       - uses: actions/setup-node@v6
         with:
           node-version: ${{ env.NODE_VERSION }}
