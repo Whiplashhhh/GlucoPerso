@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 import { env } from "@/lib/env";
-import { THEME_COOKIE, THEME_COOKIE_MAX_AGE, themePreferenceOf } from "@/lib/theme";
+import { THEME_COOKIE, themeCookieOptions, themePreferenceOf } from "@/lib/theme";
 import {
   momentRatioSchema,
   perMomentToggleSchema,
@@ -35,14 +35,12 @@ export async function updateSettingsAction(input: unknown): Promise<ActionState>
   if (error) return { error };
 
   if (theme) {
-    // The root layout reads this cookie to put the class on <html> (no flash).
-    (await cookies()).set(THEME_COOKIE, theme, {
-      path: "/",
-      maxAge: THEME_COOKIE_MAX_AGE,
-      sameSite: "lax",
-      httpOnly: true,
-      secure: env.BETTER_AUTH_URL.startsWith("https://"),
-    });
+    // Signed-out pages (login…) read this cookie to put the class on <html>.
+    (await cookies()).set(
+      THEME_COOKIE,
+      theme,
+      themeCookieOptions(env.BETTER_AUTH_URL.startsWith("https://")),
+    );
   }
   revalidatePath("/", "layout");
   return { ok: true };
