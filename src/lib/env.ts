@@ -24,6 +24,11 @@ const schema = z.object({
   SMTP_USER: z.string().default(""),
   SMTP_PASSWORD: z.string().default(""),
   SMTP_FROM: z.string().default("GlucoPerso <noreply@example.org>"),
+  // Web Push keys (base64url). Empty: derived from BETTER_AUTH_SECRET.
+  VAPID_PUBLIC_KEY: z.string().default(""),
+  VAPID_PRIVATE_KEY: z.string().default(""),
+  // Contact sent to push services (mailto: or https:). Empty: BETTER_AUTH_URL.
+  VAPID_SUBJECT: z.string().default(""),
 });
 
 export type Env = z.infer<typeof schema>;
