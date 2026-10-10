@@ -26,7 +26,8 @@
     "db:seed": "prisma db seed",
     "postinstall": "prisma generate",
     "invite": "tsx --conditions=react-server scripts/create-invite.ts",
-    "screens": "playwright test --project=screens"
+    "screens": "playwright test --project=screens",
+    "icons": "node scripts/generate-icons.mjs"
   },
   "dependencies": {
     "@date-fns/tz": "^1.5.0",
