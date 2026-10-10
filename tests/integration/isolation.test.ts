@@ -229,7 +229,7 @@ describe("ratios and suggestions", () => {
 
   it("B's ratio and settings edits only change B's rows", async () => {
     expect(
-      await setRatioManually(bob.id, { moment: "DINNER", value: 20, justification: null }),
+      await setRatioManually(bob.id, { moment: "DINNER", value: 20, justification: undefined }),
     ).toBe(true);
     await removeMomentRatios(bob.id, ["DINNER"], false);
     await setPerMomentRatios(bob.id, false);
