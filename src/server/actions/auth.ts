@@ -85,7 +85,9 @@ export async function recoverAction(
   const generic =
     "Ce code ne correspond pas. Vérifie l'email et le code (sans les tirets, c'est ok).";
   const user = await db.user.findUnique({ where: { email }, select: { id: true } });
-  if (!user || !(await consumeRecoveryCode(user.id, code))) {
+  // Same queries whether the email exists or not (no timing difference).
+  const consumed = await consumeRecoveryCode(user?.id ?? "", code);
+  if (!user || !consumed) {
     await registerFailure(emailKey);
     await registerFailure(ipKey);
     return { error: generic };
