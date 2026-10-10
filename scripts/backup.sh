@@ -3,10 +3,12 @@
 #   db.dump      PostgreSQL dump (custom format, for pg_restore)
 #   data.tar.gz  the app data volume: photos + secrets.env
 #   SHA256SUMS   checksums
-# Keeps the last BACKUP_KEEP backups (default 14).
+# Keeps the last BACKUP_KEEP backups (default 14). When BACKUP_OFFSITE is set,
+# also sends an encrypted copy off the server (scripts/backup-offsite.sh).
 #
 #   scripts/backup.sh
 #   BACKUP_DIR=/srv/backups BACKUP_KEEP=30 scripts/backup.sh
+#   scripts/schedule-backup.sh                 # daily via cron
 #
 # Run from anywhere; uses docker-compose.yml + .env of the repository. Standard
 # Compose variables (COMPOSE_PROJECT_NAME, COMPOSE_FILE, COMPOSE_ENV_FILES…) are
@@ -62,4 +64,9 @@ if ((excess > 0)); then
     echo "→ Removing old backup $(basename "$old")"
     rm -rf -- "$old"
   done
+fi
+
+# Encrypted off-site copy (see scripts/backup-offsite.sh).
+if [[ -n "${BACKUP_OFFSITE:-}" ]]; then
+  "$ROOT/scripts/backup-offsite.sh" "$dest"
 fi

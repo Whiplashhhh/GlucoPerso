@@ -160,15 +160,79 @@ Seules les 14 dernières sauvegardes sont gardées (`BACKUP_KEEP=30` pour en
 garder plus, `BACKUP_DIR=/chemin` pour changer de dossier). Le script marche
 que l'appli tourne ou non (la base doit tourner).
 
-Planification quotidienne (crontab de l'utilisateur qui gère Docker) :
+### Copie chiffrée hors du serveur
 
-```cron
-15 3 * * * umask 077 && cd /srv/glucoperso && scripts/backup.sh >> backups/backup.log 2>&1
+Les sauvegardes contiennent des données de santé : une copie doit quitter le
+serveur, **chiffrée**. `scripts/backup-offsite.sh` chiffre une sauvegarde
+avec [age](https://age-encryption.org) en un seul fichier
+`glucoperso-<horodatage>.tar.age` et l'envoie ailleurs.
+
+1. **Sur votre ordinateur** (pas sur le serveur), créer la clé :
+
+   ```bash
+   age-keygen -o glucoperso-backup-key.txt   # clé privée : à garder hors du serveur (gestionnaire de mots de passe…)
+   age-keygen -y glucoperso-backup-key.txt   # affiche la clé publique age1…
+   ```
+
+   Une clé SSH publique (`ssh-ed25519 …`) marche aussi.
+
+2. **Sur le serveur**, ne copier que la clé publique :
+
+   ```bash
+   sudo apt install age            # + rsync ou rclone selon la destination
+   echo 'age1…' > /srv/glucoperso/backup-recipients.txt
+   ```
+
+3. Choisir la destination avec `BACKUP_OFFSITE` :
+
+   | Valeur                       | Transport                                    |
+   | ---------------------------- | -------------------------------------------- |
+   | `user@nas:/srv/backups`      | rsync par SSH (clé SSH sans mot de passe)    |
+   | `/mnt/nas/glucoperso`        | dossier monté (NAS, disque USB…)             |
+   | `rclone:b2:mon-bucket/gluco` | [rclone](https://rclone.org) (S3, B2, SFTP…) |
+
+4. Tester :
+
+   ```bash
+   BACKUP_OFFSITE=user@nas:/srv/backups \
+   BACKUP_AGE_RECIPIENTS=/srv/glucoperso/backup-recipients.txt \
+     scripts/backup.sh
+   ```
+
+   Avec `BACKUP_OFFSITE`, `backup.sh` appelle `backup-offsite.sh` après la
+   sauvegarde locale. `scripts/backup-offsite.sh [dossier]` seul envoie la
+   dernière sauvegarde (ou celle indiquée).
+
+Le serveur ne détient que la clé publique : même s'il est compromis, les
+copies distantes restent illisibles. Le script ne supprime jamais rien à
+distance : régler la rétention côté destination (règles de cycle de vie du
+bucket, instantanés du NAS…).
+
+Pour relire une copie, sur une machine qui a la clé privée :
+
+```bash
+# dans le dossier GlucoPerso du serveur où restaurer
+age -d -i glucoperso-backup-key.txt glucoperso-20261010T031500Z.tar.age | tar -x -C backups
+scripts/restore.sh backups/20261010T031500Z
 ```
 
-Les sauvegardes contiennent des données de santé : dossier en droits 700,
-et copie hors du serveur **chiffrée** (par exemple `restic`, `borg` ou
-`age`).
+### Planifier
+
+`scripts/schedule-backup.sh` installe la tâche cron quotidienne (à lancer en
+tant qu'utilisateur qui gère Docker, avec les mêmes variables que pour le
+test) :
+
+```bash
+BACKUP_OFFSITE=user@nas:/srv/backups \
+BACKUP_AGE_RECIPIENTS=/srv/glucoperso/backup-recipients.txt \
+  scripts/schedule-backup.sh            # chaque jour à 03:15 (--at 04:30 pour changer)
+crontab -l                              # vérifier
+scripts/schedule-backup.sh --remove     # retirer la tâche
+```
+
+Les variables `BACKUP_*` présentes et le `PATH` courant sont recopiés dans la
+ligne cron ; relancer le script remplace la ligne précédente. Le journal est
+dans `backups/backup.log`. Penser à tester une restauration de temps en temps.
 
 ### Restaurer
 

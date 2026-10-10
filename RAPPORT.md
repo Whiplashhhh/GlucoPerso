@@ -61,10 +61,10 @@ décisions est dans [`DECISIONS.md`](DECISIONS.md), l'architecture dans [`PLAN.m
 
 Voir [`TODO.md`](TODO.md). En résumé :
 
-- Actions manuelles côté dépôt : activer la protection de la branche `main` (PR + CI requises) —
-  je n'avais pas l'autorisation de modifier ce réglage GitHub.
-- Non vérifié sur appareil réel : installation iOS/Android et écrans de démarrage, HTTPS réel avec
-  Let's Encrypt, build ARM.
+- Protection de `main` activée (PR + CI requises, historique linéaire). Installation PWA vérifiée
+  sur iPhone et Android.
+- Non vérifié : HTTPS réel avec Let's Encrypt, build ARM, sauvegarde planifiée sur le serveur de
+  production (scripts prêts, à configurer sur place).
 - Risques résiduels de sécurité documentés (port 3000 exposé directement, verrouillage par email
   utilisable pour bloquer temporairement une connexion, `style-src 'unsafe-inline'` requis par
   les animations, pas de chiffrement applicatif au repos).

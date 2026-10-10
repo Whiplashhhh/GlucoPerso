@@ -160,7 +160,10 @@ Zod avant toute requête (`src/server/params.ts`). Prouvé par
 
 `scripts/backup.sh` travaille sous `umask 077` (dossiers 700, fichiers 600),
 vérifie le dump et écrit des sommes de contrôle ; `scripts/restore.sh` vérifie
-les sommes et fait une sauvegarde de sécurité avant de restaurer. Voir
+les sommes et fait une sauvegarde de sécurité avant de restaurer.
+`scripts/backup-offsite.sh` chiffre la copie hors serveur avec age : le
+serveur n'a que la clé publique, une fuite du serveur ou de la destination
+n'expose donc aucune sauvegarde. Voir
 [deploiement.md](deploiement.md#sauvegardes-et-restauration).
 
 ### 11. Dépendances
@@ -254,8 +257,9 @@ Postgres de dev, créée au besoin), `npm run test:e2e`.
       `TRUSTED_PROXIES` renseigné seulement s'il y a un proxy/CDN de plus.
 - [ ] PostgreSQL sans port publié (réseau Docker interne).
 - [ ] `REGISTRATION_MODE=closed` une fois les comptes créés.
-- [ ] Sauvegardes quotidiennes (`scripts/backup.sh`, cron avec
-      `umask 077`), copie **chiffrée** hors du serveur, restauration testée.
+- [ ] Sauvegardes quotidiennes (`scripts/schedule-backup.sh`), copie
+      **chiffrée** hors du serveur (`BACKUP_OFFSITE`, clé privée age gardée
+      ailleurs), restauration testée.
 - [ ] Mises à jour : `git pull`, `docker compose up -d --build` ;
       `npm audit --omit=dev` propre.
 - [ ] Journaux (`docker compose logs app`, Caddy) conservés peu longtemps et
