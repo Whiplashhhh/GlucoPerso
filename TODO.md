@@ -2,13 +2,16 @@
 
 ## Actions manuelles (dépôt et hébergement)
 
-- [ ] Activer la protection de `main` sur GitHub : PR obligatoire, checks requis (« Lint, types,
+- [x] Activer la protection de `main` sur GitHub : PR obligatoire, checks requis (« Lint, types,
       unit tests, build », « Integration & end-to-end tests », « Docker image build »,
-      « Conventional PR title »), historique linéaire.
+      « Conventional PR title »), branche à jour, historique linéaire, conversations résolues.
 - [ ] Choisir le domaine, remplir `.env` de production (`BETTER_AUTH_URL` en https) et lancer
       `docker compose --profile caddy up -d --build`.
-- [ ] Planifier `scripts/backup.sh` (cron) et copier les sauvegardes hors du serveur.
-- [ ] Tester l'installation PWA et les écrans de démarrage sur un vrai iPhone et un Android.
+- [x] Scripts de planification et de copie chiffrée hors serveur (`scripts/schedule-backup.sh`,
+      `scripts/backup-offsite.sh`).
+- [ ] Sur le serveur : créer la clé age (hors serveur), choisir la destination et lancer
+      `scripts/schedule-backup.sh` (voir `docs/deploiement.md`).
+- [x] Tester l'installation PWA et les écrans de démarrage sur un vrai iPhone et un Android.
 
 ## Améliorations possibles
 

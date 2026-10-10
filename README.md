@@ -86,9 +86,11 @@ Guide complet (Caddy ou autre proxy, mise à jour, PWA) : [`docs/deploiement.md`
 ```bash
 scripts/backup.sh                              # pg_dump + photos + secret, 14 dernières gardées
 scripts/restore.sh backups/20261010T031500Z    # restauration (sauvegarde de sécurité d'abord)
+scripts/backup-offsite.sh                      # copie chiffrée (age) hors du serveur : rsync, dossier monté ou rclone
+scripts/schedule-backup.sh                     # tâche cron quotidienne (03:15)
 ```
 
-Exemple de cron et procédure détaillée dans [`docs/deploiement.md`](docs/deploiement.md#sauvegardes-et-restauration).
+Clé de chiffrement, destinations et procédure détaillée dans [`docs/deploiement.md`](docs/deploiement.md#sauvegardes-et-restauration).
 
 ## Sécurité
 
