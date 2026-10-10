@@ -1,0 +1,50 @@
+# Example Caddy configuration for GlucoPerso (HTTPS reverse proxy).
+#
+# - Bundled: `docker compose --profile caddy up -d` mounts this file and
+#   reaches the app as `app:3000` on the `proxy` network.
+# - Caddy installed on the host instead: replace `app:3000` with
+#   `127.0.0.1:3000` (the port published by docker-compose.yml) and DOMAIN /
+#   ACME_EMAIL with real values.
+#
+# Certificates are obtained and renewed automatically (Let's Encrypt / ZeroSSL):
+# DOMAIN must point to this server and ports 80 + 443 must be reachable.
+
+{
+	email {$ACME_EMAIL}
+	# Only if Caddy itself sits behind another proxy or CDN, trust it so that
+	# the real client IP is forwarded (otherwise Caddy overwrites
+	# X-Forwarded-For with the connecting IP, which is what we want):
+	# servers {
+	# 	trusted_proxies static 203.0.113.0/24
+	# }
+}
+
+{$DOMAIN} {
+	# Photo uploads are limited by the app; leave a little headroom.
+	request_body {
+		max_size 12MB
+	}
+
+	encode zstd gzip
+
+	# The app already sends CSP, HSTS, X-Frame-Options, Referrer-Policy… on
+	# every response: do not duplicate them here (two CSP headers would both
+	# apply). Only hide the server banner.
+	header -Server
+
+	# Sets X-Forwarded-For / -Proto / -Host. The app trusts X-Forwarded-For for
+	# rate limiting: see TRUSTED_PROXIES in docs/deploiement.md.
+	reverse_proxy app:3000
+
+	log {
+		output stdout
+		# Cookies and Authorization are redacted by Caddy by default. Also drop
+		# the dish search terms (/api/dishes/search?q=…): what you eat is
+		# personal.
+		format filter {
+			request>uri query {
+				delete q
+			}
+		}
+	}
+}
