@@ -27,16 +27,16 @@ export default async function RegisterPage() {
   }
 
   return (
-    <div className="flex flex-1 flex-col justify-center gap-7 py-10">
-      <header className="flex flex-col items-center gap-3 text-center">
+    <div className="group/register flex flex-1 flex-col justify-center gap-7 py-10">
+      <header className="flex flex-col items-center gap-3 text-center group-has-[[data-recovery-codes]]/register:hidden">
         <Strawberry className="w-24 motion-safe:animate-[bob_4s_ease-in-out_infinite]" mood="joy" />
-        <h1 className="text-[2.4rem] leading-none font-semibold">Bienvenue !</h1>
+        <h1 className="text-[2.4rem] leading-none font-semibold">Bienvenue&nbsp;!</h1>
         <p className="max-w-xs text-lg text-ink-soft">
           On crée ton petit carnet. Promis, c&apos;est rapide.
         </p>
       </header>
       <RegisterForm needsInvite={env.REGISTRATION_MODE === "invite"} />
-      <p className="text-center text-[15px] font-bold text-ink-soft">
+      <p className="text-center text-[15px] font-bold text-ink-soft group-has-[[data-recovery-codes]]/register:hidden">
         Déjà un compte ?{" "}
         <Link href="/connexion" className="text-coral-ink">
           Me connecter

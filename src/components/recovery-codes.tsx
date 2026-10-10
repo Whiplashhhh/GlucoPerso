@@ -37,7 +37,7 @@ export function RecoveryCodes({ codes, continueHref }: { codes: string[]; contin
   }
 
   return (
-    <div className="flex flex-col gap-5">
+    <div className="flex flex-col gap-5" data-recovery-codes="">
       <Card className="flex flex-col gap-4">
         <div className="flex items-center gap-3">
           <span className="grid size-12 place-items-center rounded-2xl bg-amber-soft text-amber-ink">
@@ -54,10 +54,13 @@ export function RecoveryCodes({ codes, continueHref }: { codes: string[]; contin
         </p>
         <ul
           aria-label="Codes de récupération"
-          className="grid grid-cols-2 gap-2 rounded-[18px] bg-surface-2 p-3 font-mono text-[15px] font-bold tracking-wide tabular"
+          className="grid grid-cols-2 gap-2 rounded-[18px] bg-surface-2 p-2.5 font-mono text-[14px] font-bold tabular"
         >
           {codes.map((code) => (
-            <li key={code} className="rounded-xl bg-surface px-2 py-2 text-center">
+            <li
+              key={code}
+              className="rounded-xl bg-surface px-1 py-2.5 text-center whitespace-nowrap"
+            >
               {code}
             </li>
           ))}

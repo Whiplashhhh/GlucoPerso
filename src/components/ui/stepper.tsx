@@ -51,7 +51,13 @@ export function Stepper({
         )}
       >
         {prefix && <span className="text-xl font-bold text-ink-soft">{prefix}</span>}
-        {formatNumber(value, digits)}
+        {/* Glucose in g/L reads « 0,70 », never « 0,7 ». */}
+        {digits >= 2
+          ? value.toLocaleString("fr-FR", {
+              minimumFractionDigits: digits,
+              maximumFractionDigits: digits,
+            })
+          : formatNumber(value, digits)}
         {suffix && <span className="text-xl font-bold text-ink-soft">{suffix}</span>}
       </output>
       <button
