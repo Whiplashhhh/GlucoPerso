@@ -1,4 +1,5 @@
 import { Cloud, Sparkle, Star } from "@/components/illustrations/buddies";
+import { ForgetOfflineAccount } from "@/components/offline/offline-sync";
 
 export default function AuthLayout({ children }: LayoutProps<"/">) {
   return (
@@ -18,6 +19,7 @@ export default function AuthLayout({ children }: LayoutProps<"/">) {
         <Sparkle className="absolute top-20 right-14 -z-10 w-3.5 text-coral" />
         {children}
       </main>
+      <ForgetOfflineAccount />
     </div>
   );
 }

@@ -281,5 +281,8 @@ restaurer avec `scripts/restore.sh`.
   des autres pages : aucune donnée de santé ne reste dans le cache du
   téléphone. Changer `VERSION` dans `sw.js` quand sa logique ou les icônes
   changent.
+- Hors ligne, la page `/hors-ligne` permet de noter un repas (sur un appareil
+  où elle s'est connectée au moins une fois) : il est chiffré pour le serveur
+  et rejoint son carnet au retour du réseau. Voir `docs/securite.md`.
 - Sur iPhone : Safari → Partager → « Sur l'écran d'accueil ». Sur Android :
   menu de Chrome → « Installer l'application ».

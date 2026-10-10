@@ -184,6 +184,15 @@ pour l'avis restant (outil de développement).
   `/connexion` sans paramètre.
 - **Service worker** (`public/sw.js`) : jamais `/api/*`, photos, payloads RSC
   ni HTML authentifié en cache ; seul `/hors-ligne` (public).
+- **Saisie hors ligne** : un repas noté sans réseau est chiffré tout de suite
+  dans le navigateur pour une clé publique P-256 du serveur (ECDH éphémère →
+  HKDF-SHA-256 → AES-256-GCM, `src/lib/offline/envelope.ts`) puis rangé dans
+  IndexedDB. L'appareil ne garde aucune clé capable de le relire : seul le
+  serveur l'ouvre à la synchro, qui vérifie qu'il a été noté pour le compte
+  connecté (`userId` dans le contenu chiffré) et ne crée jamais un repas deux
+  fois (`Meal.clientId`). En clair dans IndexedDB : la clé publique, son id
+  utilisateur et son unité de glycémie, effacés dès qu'une page « déconnectée »
+  s'affiche.
 - Déconnexion : `Clear-Site-Data: "cache"` (photos en cache privé).
 - **Inscription** : `REGISTRATION_MODE` `closed` / `invite` / `open` ; code
   d'invitation **réservé atomiquement** avant la création du compte, libéré
