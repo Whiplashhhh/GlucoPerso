@@ -1,6 +1,7 @@
 import { type Page, test } from "@playwright/test";
 import pg from "pg";
 import { E2E_DATABASE_URL, registerAndOnboard } from "../e2e/helpers";
+import sharp from "sharp";
 
 /**
  * Visual self-review: captures every screen at 390×844 in light and dark.
@@ -117,4 +118,85 @@ test("moi screens", async ({ page }) => {
     await page.goto(path);
     await shoot(page, name);
   }
+});
+
+async function logMeal(
+  page: Page,
+  {
+    name,
+    digits,
+    tag,
+    notes,
+    photo,
+  }: {
+    name: string;
+    digits: string[];
+    tag?: RegExp;
+    notes?: string;
+    photo?: boolean;
+  },
+) {
+  await page.goto("/repas/nouveau");
+  if (photo) {
+    const png = await sharp({
+      create: { width: 640, height: 480, channels: 3, background: "#e9b872" },
+    })
+      .composite([
+        {
+          input: Buffer.from(
+            `<svg width="640" height="480"><circle cx="320" cy="250" r="170" fill="#fff6e8"/><circle cx="270" cy="220" r="60" fill="#f2c94c"/><circle cx="380" cy="270" r="50" fill="#f08a6c"/></svg>`,
+          ),
+        },
+      ])
+      .png()
+      .toBuffer();
+    await page
+      .getByTestId("photo-gallery-input")
+      .setInputFiles({ name: "photo.png", mimeType: "image/png", buffer: png });
+    await page.getByAltText("Aperçu de la photo du repas").waitFor();
+  }
+  await page.getByLabel("Qu'est-ce qu'on mange ?").fill(name);
+  for (const key of digits) await page.getByRole("button", { name: key, exact: true }).click();
+  await page.getByRole("button", { name: "Utiliser" }).click();
+  if (tag) await page.getByRole("button", { name: tag }).click();
+  if (notes) await page.getByLabel("Notes").fill(notes);
+  await page.getByRole("button", { name: "Enregistrer le repas" }).click();
+  await page.waitForURL(/ajout=/);
+  return new URL(page.url()).searchParams.get("ajout") ?? "";
+}
+
+test("calendar screens", async ({ page }) => {
+  await registerAndOnboard(page, { name: "Léa" });
+  const raclette = await logMeal(page, {
+    name: "Raclette",
+    digits: ["6", "5"],
+    tag: /Absorption lente/,
+    notes: "Avec les copines, beaucoup de fromage",
+    photo: true,
+  });
+  await page.goto(`/retour/${raclette}`);
+  await page.getByRole("radio", { name: /Pile poil/ }).click();
+  await page.getByRole("button", { name: "C'est noté" }).click();
+  await page.getByRole("link", { name: "Retour à l'accueil" }).waitFor();
+  await logMeal(page, { name: "Crêpes au sucre", digits: ["4", "0"], tag: /Sport/ });
+
+  await page.goto("/calendrier");
+  await shoot(page, "60-calendrier");
+
+  const today = new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Paris" }).format(new Date());
+  const otherDay = `${today.slice(0, 8)}${today.endsWith("-01") ? "02" : "01"}`;
+  await page.locator(`[data-day="${otherDay}"]`).click();
+  await shoot(page, "61-calendrier-jour-vide");
+
+  await page.goto(`/repas/${raclette}`);
+  await page.getByAltText("Photo : Raclette").waitFor();
+  await shoot(page, "62-repas-detail");
+
+  await page.goto(`/repas/${raclette}/modifier`);
+  await shoot(page, "63-repas-modifier");
+
+  await page.goto("/recherche");
+  await shoot(page, "64-recherche-vide");
+  await page.goto("/recherche?q=r&tag=SLOW_ABSORPTION");
+  await shoot(page, "65-recherche-resultats");
 });

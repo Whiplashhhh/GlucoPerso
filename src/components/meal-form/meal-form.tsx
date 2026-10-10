@@ -13,7 +13,7 @@ import { Modal } from "@/components/ui/modal";
 import { cn } from "@/lib/cn";
 import { doseHint } from "@/lib/dose";
 import { formatNumber, formatRatio, parseDecimal } from "@/lib/format";
-import { fromUnit, type GlucoseUnit, GLUCOSE_UNIT_LABEL } from "@/lib/glucose";
+import { fromUnit, type GlucoseUnit, GLUCOSE_UNIT_LABEL, toUnit } from "@/lib/glucose";
 import {
   MEAL_MOMENTS,
   MOMENT_EMOJI,
@@ -26,7 +26,7 @@ import {
 } from "@/lib/moments";
 import { MEAL_TAGS, type MealTag, TAG_INFO } from "@/lib/tags";
 import type { DishMemory } from "@/server/repos/dishes";
-import { createMealAction } from "@/server/actions/meals";
+import { createMealAction, updateMealAction } from "@/server/actions/meals";
 import { DishMemoryCard } from "./dish-memory";
 import { NumPad, applyKey } from "./numpad";
 import { PhotoPicker } from "./photo-picker";
@@ -48,29 +48,63 @@ export type MealFormSettings = {
   doseConfirmThreshold: number;
 };
 
+/** A saved meal being edited (glucose in g/L, as stored). */
+export type MealFormInitial = {
+  name: string;
+  eatenAt: string;
+  moment: MealMoment;
+  carbsGrams: number;
+  insulinUnits: number;
+  correctionUnits: number;
+  glucoseBefore: number | null;
+  tags: MealTag[];
+  notes: string | null;
+  photoId: string | null;
+};
+
 const toText = (value: number | null | undefined, digits = 1) =>
   value === null || value === undefined ? "" : formatNumber(value, digits).replace(/\s/g, "");
 
-export function MealForm({ ratios, settings }: { ratios: RatioTable; settings: MealFormSettings }) {
+export function MealForm({
+  ratios,
+  settings,
+  initial,
+  mealId,
+}: {
+  ratios: RatioTable;
+  settings: MealFormSettings;
+  /** With `mealId`: edits that meal instead of creating a new one. */
+  initial?: MealFormInitial;
+  mealId?: string;
+}) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const unit = settings.glucoseUnit;
+  const editing = Boolean(mealId && initial);
+  const detailHref = mealId ? `/repas/${mealId}` : "/";
 
-  const [photoId, setPhotoId] = useState<string | null>(null);
-  const [name, setName] = useState("");
+  const [photoId, setPhotoId] = useState<string | null>(initial?.photoId ?? null);
+  const [name, setName] = useState(initial?.name ?? "");
   const [memories, setMemories] = useState<DishMemory[]>([]);
   const [chosen, setChosen] = useState<DishMemory | null>(null);
-  const [moment, setMoment] = useState<MealMoment>(() => momentForHour(new Date().getHours()));
-  const [eatenAt, setEatenAt] = useState<Date | null>(null);
-  const [values, setValues] = useState<Record<Field, string>>({
-    carbs: "",
-    units: "",
-    correction: "",
-    glucose: "",
-  });
+  const [moment, setMoment] = useState<MealMoment>(
+    () => initial?.moment ?? momentForHour(new Date().getHours()),
+  );
+  const [eatenAt, setEatenAt] = useState<Date | null>(() =>
+    initial ? new Date(initial.eatenAt) : null,
+  );
+  const [values, setValues] = useState<Record<Field, string>>(() => ({
+    carbs: toText(initial?.carbsGrams, 0),
+    units: toText(initial?.insulinUnits),
+    correction: initial?.correctionUnits ? toText(initial.correctionUnits) : "",
+    glucose:
+      initial?.glucoseBefore == null
+        ? ""
+        : toText(toUnit(initial.glucoseBefore, unit), unit === "MG_DL" ? 0 : 2),
+  }));
   const [active, setActive] = useState<Field>("carbs");
-  const [tags, setTags] = useState<Set<MealTag>>(new Set());
-  const [notes, setNotes] = useState("");
+  const [tags, setTags] = useState<Set<MealTag>>(() => new Set(initial?.tags ?? []));
+  const [notes, setNotes] = useState(initial?.notes ?? "");
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [formError, setFormError] = useState<string | null>(null);
   const [confirming, setConfirming] = useState(false);
@@ -85,7 +119,8 @@ export function MealForm({ ratios, settings }: { ratios: RatioTable; settings: M
   useEffect(() => {
     const query = name.trim();
     const seq = ++searchSeq.current;
-    if (query.length < 2) return;
+    // When editing, the meal's own name isn't a memory worth showing.
+    if (query.length < 2 || (editing && name === initial?.name)) return;
     const timer = setTimeout(async () => {
       try {
         const response = await fetch(`/api/dishes/search?q=${encodeURIComponent(query)}`);
@@ -96,9 +131,9 @@ export function MealForm({ ratios, settings }: { ratios: RatioTable; settings: M
       }
     }, 180);
     return () => clearTimeout(timer);
-  }, [name]);
+  }, [name, editing, initial?.name]);
 
-  const visible = name.trim().length < 2 ? [] : memories;
+  const visible = name.trim().length < 2 || (editing && name === initial?.name) ? [] : memories;
   const top = visible[0];
   const best = chosen ?? (top && top.score >= 0.5 ? top : null);
   const suggestions = visible.filter(
@@ -175,14 +210,19 @@ export function MealForm({ ratios, settings }: { ratios: RatioTable; settings: M
       else if (local.insulinUnits) setActive("units");
       return;
     }
-    if (!confirmedHighDose && units > settings.doseConfirmThreshold) {
+    // A big dose she already confirmed when logging the meal isn't asked again.
+    const alreadyConfirmed = editing && units === initial?.insulinUnits;
+    if (alreadyConfirmed) input.confirmedHighDose = true;
+    if (!confirmedHighDose && !alreadyConfirmed && units > settings.doseConfirmThreshold) {
       setConfirming(true);
       return;
     }
     startTransition(async () => {
-      const result = await createMealAction(input);
+      const result = mealId ? await updateMealAction(mealId, input) : await createMealAction(input);
       if (result.ok && result.data) {
-        router.push(`/?ajout=${result.data.id}`);
+        // Replace: the edit sheet leaves no history entry behind.
+        if (mealId) router.replace(detailHref);
+        else router.push(`/?ajout=${result.data.id}`);
         return;
       }
       if (result.data?.needsConfirmation) {
@@ -209,13 +249,15 @@ export function MealForm({ ratios, settings }: { ratios: RatioTable; settings: M
         <div className="flex items-center justify-between px-3 py-2">
           <button
             type="button"
-            onClick={() => router.back()}
+            onClick={() => (editing ? router.replace(detailHref) : router.back())}
             aria-label="Fermer"
             className="grid size-12 place-items-center rounded-full text-ink-soft hover:bg-surface-2"
           >
             <X size={26} />
           </button>
-          <h1 className="text-xl font-semibold">Nouveau repas</h1>
+          <h1 className="text-xl font-semibold">
+            {editing ? "Modifier le repas" : "Nouveau repas"}
+          </h1>
           <span className="size-12" />
         </div>
       </header>
@@ -275,7 +317,9 @@ export function MealForm({ ratios, settings }: { ratios: RatioTable; settings: M
           {eatenAt ? (
             <label className="flex items-center gap-3 rounded-[18px] bg-surface px-4 py-1 shadow-soft">
               <CalendarClock size={20} className="shrink-0 text-coral-ink" />
-              <span className="text-sm font-bold text-ink-soft">Quand ?</span>
+              <span className="text-sm font-bold whitespace-nowrap text-ink-soft">
+                Quand&nbsp;?
+              </span>
               <input
                 type="datetime-local"
                 aria-label="Date et heure du repas"
@@ -432,7 +476,7 @@ export function MealForm({ ratios, settings }: { ratios: RatioTable; settings: M
           loading={pending}
           onClick={() => submit(false)}
         >
-          Enregistrer le repas
+          {editing ? "Enregistrer les modifications" : "Enregistrer le repas"}
         </Button>
       </div>
 
