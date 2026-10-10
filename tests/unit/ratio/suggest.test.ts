@@ -103,6 +103,11 @@ describe("roundTowards", () => {
 });
 
 describe("targetRatio", () => {
+  it("always moves at least one step when the estimate is barely on the right side", () => {
+    expect(targetRatio(12, "TOO_MUCH", 12.3)).toBe(12.5);
+    expect(targetRatio(12, "NOT_ENOUGH", 11.8)).toBe(11.5);
+  });
+
   it("follows the estimate within the cap", () => {
     expect(targetRatio(12, "TOO_MUCH", 12.9)).toBe(12.5);
     expect(targetRatio(12, "NOT_ENOUGH", 11.2)).toBe(11.5);

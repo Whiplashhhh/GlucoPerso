@@ -84,10 +84,11 @@ export function targetRatio(
   bounds: RatioBounds = DEFAULT_BOUNDS,
 ): number | null {
   const up = signal === "TOO_MUCH";
-  let target = estimate;
-  if (up ? target <= current : target >= current) {
-    target = up ? current + RATIO_STEP : current - RATIO_STEP;
-  }
+  // At least one step in the signalled direction, so stronger evidence can
+  // never produce "no suggestion" where weaker evidence produces one.
+  let target = up
+    ? Math.max(estimate, current + RATIO_STEP)
+    : Math.min(estimate, current - RATIO_STEP);
   const limit = current * MAX_CHANGE;
   target = up ? Math.min(target, current + limit) : Math.max(target, current - limit);
   target = roundTowards(target, current);
