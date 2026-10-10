@@ -54,6 +54,9 @@ jobs:
           --health-retries 20
     env:
       E2E_DATABASE_URL: postgresql://glucoperso:glucoperso@localhost:5432/glucoperso_test
+      # Separate database: the integration suite and the e2e global setup
+      # each empty their own database and must not wipe each other.
+      INTEGRATION_DATABASE_URL: postgresql://glucoperso:glucoperso@localhost:5432/glucoperso_integration_test
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-node@v6
@@ -61,7 +64,11 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
           cache: npm
       - run: npm ci
-      - run: npm run test:integration -- --passWithNoTests
+      - name: Create the integration database
+        run: createdb --host=localhost --username=glucoperso glucoperso_integration_test
+        env:
+          PGPASSWORD: glucoperso
+      - run: npm run test:integration
       - run: npx playwright install --with-deps chromium
       - run: npm run build
       - run: npm run test:e2e
