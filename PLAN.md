@@ -108,17 +108,17 @@ Glycémies stockées en **g/L** (canonique), converties à l'affichage.
 
 ## 5. Todo
 
-- [ ] Scaffold + outillage + CI
-- [ ] Auth + onboarding
-- [ ] Saisie repas + photo
-- [ ] Retour d'expérience
-- [ ] Accueil
-- [ ] Calendrier + recherche
-- [ ] Ratio adaptatif
-- [ ] Polish passe 1
-- [ ] Polish passe 2
-- [ ] Mes plats
-- [ ] Seed démo
-- [ ] Lente, stats, exports
-- [ ] Revue sécurité
-- [ ] Docker, README, RAPPORT
+- [x] Scaffold + outillage + CI
+- [x] Auth + onboarding
+- [x] Saisie repas + photo
+- [x] Retour d'expérience
+- [x] Accueil
+- [x] Calendrier + recherche
+- [x] Ratio adaptatif
+- [x] Polish passe 1
+- [x] Polish passe 2
+- [x] Mes plats
+- [x] Seed démo
+- [x] Lente, stats, exports
+- [x] Revue sécurité
+- [x] Docker, README, RAPPORT
