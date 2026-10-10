@@ -12,7 +12,9 @@ test("register with an invite, onboard, sign out and sign back in", async ({ pag
   await expect(page.getByRole("heading", { name: /Coucou Léa/ })).toBeVisible();
 
   await page.getByRole("link", { name: "Moi" }).click();
+  const signOut = page.waitForResponse((response) => response.url().endsWith("/api/auth/sign-out"));
   await page.getByRole("button", { name: "Me déconnecter" }).click();
+  expect((await signOut).headers()["clear-site-data"]).toBe('"cache"');
   await expect(page).toHaveURL(/\/connexion$/);
 
   await page.getByLabel("Email").fill(email);
