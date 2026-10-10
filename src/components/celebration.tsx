@@ -1,7 +1,9 @@
 "use client";
 
 import { motion, useReducedMotion } from "motion/react";
-import { useEffect, useMemo } from "react";
+import { type ReactNode, useEffect, useMemo } from "react";
+import { Sparkle, Star } from "@/components/illustrations/buddies";
+import { cn } from "@/lib/cn";
 
 const COLORS = ["#f08a6c", "#57b886", "#9a84dc", "#e9a640", "#ffd36e", "#f57d8b"];
 
@@ -29,6 +31,48 @@ function pieces(count: number, seed: number): Piece[] {
     size: 7 + random() * 7,
     round: random() > 0.55,
   }));
+}
+
+const HALO = {
+  amber: "bg-amber-soft",
+  coral: "bg-coral-soft",
+  mint: "bg-mint-soft",
+  lavender: "bg-lavender-soft",
+  sky: "bg-sky-soft",
+} as const;
+
+/**
+ * A buddy on a soft halo with a few static sparkles around it. Static on
+ * purpose: it still feels festive with reduced motion, when confetti is off.
+ */
+export function CheerArt({
+  children,
+  tone = "amber",
+  sparkles = true,
+  className,
+}: {
+  children: ReactNode;
+  tone?: keyof typeof HALO;
+  sparkles?: boolean;
+  className?: string;
+}) {
+  return (
+    <div className={cn("relative isolate grid place-items-center", className)}>
+      <span
+        aria-hidden="true"
+        className={cn("absolute inset-[-14%] -z-10 rounded-full opacity-90 blur-md", HALO[tone])}
+      />
+      {sparkles && (
+        <>
+          <Sparkle className="absolute -top-3 -left-4 w-5 text-coral" />
+          <Star className="absolute top-1 -right-6 w-6 rotate-12" />
+          <Sparkle className="absolute -right-2 -bottom-1 w-3.5 text-amber" />
+          <Sparkle className="absolute bottom-3 -left-7 w-3 text-lavender" />
+        </>
+      )}
+      {children}
+    </div>
+  );
 }
 
 /** Light confetti burst + a gentle haptic tap when available. */

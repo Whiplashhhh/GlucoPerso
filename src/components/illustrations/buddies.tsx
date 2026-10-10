@@ -359,3 +359,25 @@ export function Cupcake({ mood = "happy", ...props }: BuddyProps) {
     </Svg>
   );
 }
+
+/** A sleepy crescent moon for evenings and nights. */
+export function Moon({ mood = "calm", ...props }: BuddyProps) {
+  return (
+    <Svg {...props}>
+      <path d="M62 14a36 36 0 1 0 24 52A30 30 0 0 1 62 14Z" fill="#ffe3a3" />
+      <path d="M86 66a36 36 0 0 1-66-4c10 12 30 18 48 10 8-3 14-6 18-6Z" fill="#f6cf7e" />
+      <ellipse
+        cx={34}
+        cy={34}
+        rx={5}
+        ry={3}
+        fill="#fff"
+        opacity={0.5}
+        transform="rotate(-35 34 34)"
+      />
+      <circle cx={84} cy={22} r={2.5} fill="#ffd36e" />
+      <circle cx={92} cy={38} r={1.6} fill="#ffd36e" />
+      <Face x={42} y={56} s={0.85} mood={mood} />
+    </Svg>
+  );
+}

@@ -4,7 +4,7 @@ import { ArrowLeft } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { useRouter } from "next/navigation";
 import { type ReactNode, useEffect, useState, useTransition } from "react";
-import { Celebration } from "@/components/celebration";
+import { Celebration, CheerArt } from "@/components/celebration";
 import { Bowl, Croissant, Strawberry, Sun } from "@/components/illustrations/buddies";
 import { Button } from "@/components/ui/button";
 import { Card, Notice } from "@/components/ui/card";
@@ -94,18 +94,29 @@ export function OnboardingFlow({ initialName }: { initialName: string }) {
             animate={{ scale: 1, rotate: 0, opacity: 1 }}
             transition={{ type: "spring", stiffness: 260, damping: 14 }}
           >
-            <Sun className="w-40" mood="joy" />
+            <CheerArt tone="amber">
+              <Sun className="w-40" mood="joy" />
+            </CheerArt>
           </motion.div>
-          <h1 className="text-4xl font-semibold">C&apos;est prêt, {name.trim()} !</h1>
-          <p className="max-w-xs text-lg text-ink-soft">Ton carnet est tout neuf. On y va ?</p>
+          <h1 className="text-4xl font-semibold">C&apos;est prêt, {name.trim()}&nbsp;!</h1>
+          <p className="max-w-xs text-lg text-ink-soft">
+            Ton carnet est tout neuf. On y va&nbsp;? 📖
+          </p>
         </div>
       </Screen>
     );
   }
 
-  const content: { art: ReactNode; title: string; subtitle: string; body: ReactNode }[] = [
+  const content: {
+    art: ReactNode;
+    tone: "amber" | "coral" | "mint" | "lavender";
+    title: string;
+    subtitle: string;
+    body: ReactNode;
+  }[] = [
     {
-      art: <Sun className="w-36" mood="joy" />,
+      art: <Sun className="w-32" mood="joy" />,
+      tone: "amber",
       title: "Enchantée !",
       subtitle: "Je suis ton nouveau carnet. Comment je t'appelle ?",
       body: (
@@ -119,7 +130,8 @@ export function OnboardingFlow({ initialName }: { initialName: string }) {
       ),
     },
     {
-      art: <Croissant className="w-36" mood="happy" />,
+      art: <Croissant className="w-32" mood="happy" />,
+      tone: "coral",
       title: "Tes petites habitudes",
       subtitle: "Pour te parler dans ta langue de tous les jours.",
       body: (
@@ -152,7 +164,8 @@ export function OnboardingFlow({ initialName }: { initialName: string }) {
       ),
     },
     {
-      art: <Bowl className="w-36" mood="happy" />,
+      art: <Bowl className="w-32" mood="happy" />,
+      tone: "mint",
       title: "Tes ratios de départ",
       subtitle: "Ceux que t'a donnés ton diabéto : 1 unité pour combien de grammes de glucides ?",
       body: (
@@ -221,7 +234,8 @@ export function OnboardingFlow({ initialName }: { initialName: string }) {
       ),
     },
     {
-      art: <Strawberry className="w-32" mood="happy" />,
+      art: <Strawberry className="w-28" mood="happy" />,
+      tone: "lavender",
       title: "Ton seuil d'hypo",
       subtitle: "En dessous, on considère que c'est une hypo. Par défaut 0,70 g/L.",
       body: (
@@ -274,7 +288,7 @@ export function OnboardingFlow({ initialName }: { initialName: string }) {
               className="h-2.5 rounded-full"
               animate={{
                 width: index === step ? 28 : 10,
-                backgroundColor: index <= step ? "var(--coral)" : "var(--surface-3)",
+                backgroundColor: index <= step ? "var(--coral)" : "var(--line)",
               }}
             />
           ))}
@@ -298,7 +312,9 @@ export function OnboardingFlow({ initialName }: { initialName: string }) {
             animate={{ scale: 1, rotate: 0 }}
             transition={{ type: "spring", stiffness: 260, damping: 12, delay: 0.05 }}
           >
-            {current.art}
+            <CheerArt tone={current.tone} sparkles={false} className="size-36">
+              {current.art}
+            </CheerArt>
           </motion.div>
           <div className="flex flex-col gap-2 text-center">
             <h1 className="text-[2.1rem] leading-tight font-semibold">{current.title}</h1>
@@ -332,7 +348,7 @@ export function OnboardingFlow({ initialName }: { initialName: string }) {
 
 function Screen({ children }: { children: ReactNode }) {
   return (
-    <main className="relative mx-auto flex min-h-dvh w-full max-w-md flex-col px-5 pt-safe pb-safe">
+    <main className="relative mx-auto app-frame flex min-h-dvh w-full max-w-md flex-col px-5 pt-safe pb-safe md:min-h-[calc(100dvh-3rem)]">
       {children}
     </main>
   );

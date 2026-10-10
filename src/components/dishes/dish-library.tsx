@@ -166,7 +166,7 @@ function FavoriteCard({ dish }: { dish: LibraryDish }) {
         <p className="text-sm font-semibold text-ink-soft tabular">{statsLine(dish)}</p>
         <div className="mt-auto flex flex-wrap items-center gap-x-2 gap-y-1.5 pt-1">
           <RecentOutcomes outcomes={dish.recentOutcomes} size={11} />
-          {dish.perfect > 0 && <PerfectBadge dish={dish} />}
+          <PerfectBadge dish={dish} />
         </div>
       </div>
     </Link>

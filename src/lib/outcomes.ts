@@ -15,7 +15,7 @@ export const OUTCOME_INFO: Record<
     short: "Un peu trop",
     hint: "Ça a bien descendu, voire une hypo",
     emoji: "🫧",
-    tone: "bg-lavender text-white",
+    tone: "bg-lavender text-on-pastel",
     soft: "bg-lavender-soft text-lavender-ink",
   },
   PERFECT: {
@@ -23,7 +23,7 @@ export const OUTCOME_INFO: Record<
     short: "Pile poil",
     hint: "Ma glycémie est restée sage",
     emoji: "🎯",
-    tone: "bg-mint text-white",
+    tone: "bg-mint text-on-pastel",
     soft: "bg-mint-soft text-mint-ink",
   },
   NOT_ENOUGH: {
@@ -31,7 +31,7 @@ export const OUTCOME_INFO: Record<
     short: "Pas assez",
     hint: "Ma glycémie est restée un peu haute",
     emoji: "☁️",
-    tone: "bg-amber text-white",
+    tone: "bg-amber text-on-pastel",
     soft: "bg-amber-soft text-amber-ink",
   },
 };

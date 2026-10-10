@@ -39,7 +39,7 @@ export function Toast({
           animate={{ opacity: 1, y: 0, scale: 1 }}
           exit={{ opacity: 0, y: -16 }}
           transition={{ type: "spring", stiffness: 420, damping: 32 }}
-          className="fixed inset-x-0 top-3 z-50 mx-auto flex w-[calc(100%-2rem)] max-w-sm items-center gap-3 rounded-[20px] bg-ink px-4 py-3 pt-safe font-bold text-bg shadow-lift"
+          className="fixed inset-x-0 top-[calc(env(safe-area-inset-top)+0.75rem)] z-50 mx-auto flex w-[calc(100%-2rem)] max-w-sm items-center gap-3 rounded-[20px] bg-ink px-4 py-3 leading-snug font-bold text-bg shadow-lift md:top-10"
         >
           <span className="flex-1">{message}</span>
           {action}

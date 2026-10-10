@@ -54,7 +54,7 @@ export function BottomNav() {
   return (
     <nav
       aria-label="Navigation principale"
-      className="fixed inset-x-0 bottom-0 z-40 mx-auto w-full max-w-md px-3 pb-safe"
+      className="fixed inset-x-0 bottom-0 z-40 mx-auto w-full max-w-md px-3 pb-safe md:bottom-6"
     >
       <div className="relative mb-3 flex items-center gap-1 rounded-[28px] border border-line/60 bg-surface/90 px-2 py-1.5 shadow-lift backdrop-blur-xl">
         {left.map(renderItem)}

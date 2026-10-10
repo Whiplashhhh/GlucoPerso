@@ -16,6 +16,13 @@ type Props = {
   meals: { id: string; name: string }[];
 };
 
+/** « 1 U / 11 g » and the final « ? » never break across lines. */
+function keepRatiosTogether(text: string): string {
+  return text
+    .replace(/1 U \/ [\d,]+ g/g, (ratio) => ratio.replace(/ /g, " "))
+    .replace(/ \?$/, " ?");
+}
+
 /** A soft suggestion card. Nothing changes unless she taps « Appliquer ». */
 export function SuggestionCard({ ratioKey, explanation, question, meals }: Props) {
   const [pending, startTransition] = useTransition();
@@ -52,7 +59,9 @@ export function SuggestionCard({ ratioKey, explanation, question, meals }: Props
             </span>
             <div className="flex flex-col gap-1">
               <p className="font-semibold text-ink">{explanation}</p>
-              <p className="font-display text-xl font-semibold text-lavender-ink">{question}</p>
+              <p className="font-display text-xl font-semibold text-balance text-lavender-ink">
+                {keepRatiosTogether(question)}
+              </p>
             </div>
           </div>
           {meals.length > 0 && (
@@ -80,13 +89,14 @@ export function SuggestionCard({ ratioKey, explanation, question, meals }: Props
             <div className="grid grid-cols-2 gap-2">
               <Button
                 variant="soft"
+                className="bg-surface/80! px-3! text-[15px]! leading-tight"
                 onClick={() => decide("DISMISSED", "Pas de souci, on garde ton ratio actuel 🌿")}
               >
                 Pas maintenant
               </Button>
               <Button
                 variant="soft"
-                className="text-sm leading-tight"
+                className="bg-surface/80! px-3! text-[15px]! leading-tight"
                 onClick={() =>
                   decide("DOCTOR", "Bonne idée ! Tu retrouveras tout dans « Mon évolution » 📋")
                 }

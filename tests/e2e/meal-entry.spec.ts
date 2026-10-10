@@ -53,7 +53,7 @@ test("a big dose asks for a gentle confirmation", async ({ page }) => {
   await page.getByRole("button", { name: /Insuline rapide/ }).click();
   await tapNumber(page, "18");
   await page.getByRole("button", { name: "Enregistrer le repas" }).click();
-  await expect(page.getByRole("dialog", { name: "C'est bien 18 unités ?" })).toBeVisible();
+  await expect(page.getByRole("dialog", { name: /C'est bien 18 unités/ })).toBeVisible();
   await page.getByRole("button", { name: "Oui, c'est bien ça" }).click();
   await page.waitForURL(/\/\?ajout=/, { waitUntil: "commit" });
 });

@@ -96,7 +96,7 @@ export function PhotoPicker({ photoId, onChange, onBusyChange }: Props) {
             className="aspect-[4/3] w-full object-cover"
           />
           {uploading && (
-            <div className="absolute inset-0 grid place-items-center bg-ink/25 text-white">
+            <div className="absolute inset-0 grid place-items-center bg-black/30 text-white">
               <Spinner className="size-8" />
             </div>
           )}
