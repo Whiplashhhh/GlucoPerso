@@ -9,18 +9,18 @@ test("protected pages send visitors to the login page", async ({ page }) => {
 
 test("register with an invite, onboard, sign out and sign back in", async ({ page }) => {
   const { email } = await registerAndOnboard(page, { name: "Léa" });
-  await expect(page.getByRole("heading", { name: /Coucou Léa/ })).toBeVisible();
+  await expect(page.getByRole("heading", { name: /(Coucou|Bonsoir) Léa/ })).toBeVisible();
 
   await page.getByRole("link", { name: "Moi" }).click();
   const signOut = page.waitForResponse((response) => response.url().endsWith("/api/auth/sign-out"));
   await page.getByRole("button", { name: "Me déconnecter" }).click();
-  expect((await signOut).headers()["clear-site-data"]).toBe('"cache"');
+  expect((await (await signOut).allHeaders())["clear-site-data"]).toBe('"cache"');
   await expect(page).toHaveURL(/\/connexion$/);
 
   await page.getByLabel("Email").fill(email);
   await page.getByLabel("Mot de passe", { exact: true }).fill(PASSWORD);
   await page.getByRole("button", { name: "Me connecter" }).click();
-  await expect(page.getByRole("heading", { name: /Coucou Léa/ })).toBeVisible();
+  await expect(page.getByRole("heading", { name: /(Coucou|Bonsoir) Léa/ })).toBeVisible();
 });
 
 test("the raw sign-up endpoint is closed and pages carry security headers", async ({ request }) => {

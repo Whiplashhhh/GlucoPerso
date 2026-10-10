@@ -116,12 +116,6 @@ export const auth = betterAuth({
       }
     }),
     after: createAuthMiddleware(async (ctx) => {
-      // Signing out also drops the browser's HTTP cache (meal photos are
-      // cached privately): nothing personal stays on a shared device.
-      if (ctx.path === "/sign-out") {
-        ctx.setHeader("Clear-Site-Data", '"cache"');
-        return;
-      }
       if (ctx.path !== SIGN_IN_PATH) return;
       const key = throttleKey("signin", emailFromBody(ctx.body));
       if (ctx.context.newSession) await registerSuccess(key);
