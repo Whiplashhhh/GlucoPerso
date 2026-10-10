@@ -7,6 +7,7 @@ import { nextCookies } from "better-auth/next-js";
 import { db } from "@/lib/db";
 import { env, smtpEnabled } from "@/lib/env";
 import { throttleKey } from "@/lib/security/codes";
+import { redactLogMessage } from "@/lib/security/redact";
 import { sendPasswordResetEmail } from "@/server/mailer";
 import { LockedError, assertNotLocked, registerFailure, registerSuccess } from "@/server/throttle";
 
@@ -34,6 +35,32 @@ export const auth = betterAuth({
   secret: env.BETTER_AUTH_SECRET,
   database: prismaAdapter(db, { provider: "postgresql" }),
   telemetry: { enabled: false },
+  // Errors only, emails masked, extra arguments (request bodies, user
+  // objects…) never printed.
+  logger: {
+    level: "error",
+    log: (level, message) => console.error(`[auth] ${level}: ${redactLogMessage(message)}`),
+  },
+  // HTTP endpoints the app doesn't use: less surface for a stolen session.
+  // (Sign-up stays reachable only to answer 403, see the hook below.)
+  disabledPaths: [
+    "/update-user",
+    "/change-email",
+    "/change-password",
+    "/delete-user",
+    "/delete-user/callback",
+    "/verify-password",
+    "/update-session",
+    "/send-verification-email",
+    "/verify-email",
+    "/sign-in/social",
+    "/link-social",
+    "/unlink-account",
+    "/list-accounts",
+    "/account-info",
+    "/refresh-token",
+    "/get-access-token",
+  ],
   emailAndPassword: {
     enabled: true,
     minPasswordLength: 10,

@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { generateCode, hashCode, normalizeCode, throttleKey } from "@/lib/security/codes";
 import { UNKNOWN_IP, clientIpFromForwarded } from "@/lib/security/ip";
 import { FREE_ATTEMPTS, formatWait, lockoutDurationMs } from "@/lib/security/lockout";
+import { redactLogMessage } from "@/lib/security/redact";
 import { isSameOrigin } from "@/server/origin";
 
 describe("codes", () => {
@@ -83,5 +84,15 @@ describe("same-origin guard for mutating route handlers", () => {
     expect(isSameOrigin(evil)).toBe(false);
     expect(isSameOrigin(request({ host: "localhost:3000" }))).toBe(false);
     expect(isSameOrigin(request({ origin: "null", host: "localhost:3000" }))).toBe(false);
+  });
+});
+
+describe("log redaction", () => {
+  it("masks email addresses and cuts long messages", () => {
+    expect(redactLogMessage("Sign-up attempt for existing email: lea.martin+gp@exemple.org")).toBe(
+      "Sign-up attempt for existing email: [email]",
+    );
+    expect(redactLogMessage("<lea@exemple.org>")).toBe("<[email]>");
+    expect(redactLogMessage("x".repeat(500))).toHaveLength(301);
   });
 });
