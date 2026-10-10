@@ -44,6 +44,13 @@ describe("csvCell", () => {
     expect(csvCell("@cmd")).toBe("'@cmd");
     expect(csvCell("-2;x")).toBe('"\'-2;x"');
   });
+
+  it("also neutralises formulas hidden behind spaces or line breaks", () => {
+    expect(csvCell(" =1+1")).toBe("' =1+1");
+    expect(csvCell("\n=cmd")).toBe('"\'\n=cmd"');
+    expect(csvCell(" @SUM(A1)")).toBe("' @SUM(A1)");
+    expect(csvCell("Pâtes = bonheur")).toBe("Pâtes = bonheur");
+  });
 });
 
 describe("meals CSV", () => {
