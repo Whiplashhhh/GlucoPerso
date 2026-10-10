@@ -6,7 +6,9 @@ import {
   mealBolus,
   perfectSummary,
 } from "@/lib/dish-stats";
+import { sinceLabel } from "@/lib/dates";
 import { matchesDishQuery } from "@/lib/dishes";
+import { dishName } from "@/lib/validation/dish";
 
 const day = (n: number) => new Date(Date.UTC(2026, 9, n, 12));
 
@@ -123,5 +125,25 @@ describe("matchesDishQuery", () => {
     expect(matchesDishQuery("Pâtes au pesto", "PESTO pât")).toBe(true);
     expect(matchesDishQuery("Pâtes au pesto", "risotto")).toBe(false);
     expect(matchesDishQuery("Pâtes au pesto", "  ")).toBe(true);
+  });
+});
+
+describe("sinceLabel", () => {
+  it("speaks in days, then months, then years", () => {
+    expect(sinceLabel("2026-10-10", "2026-10-10")).toBe("aujourd'hui");
+    expect(sinceLabel("2026-10-09", "2026-10-10")).toBe("hier");
+    expect(sinceLabel("2026-10-01", "2026-10-10")).toBe("il y a 9 jours");
+    expect(sinceLabel("2026-07-10", "2026-10-10")).toBe("il y a 3 mois");
+    expect(sinceLabel("2025-10-01", "2026-10-10")).toBe("il y a un an");
+    expect(sinceLabel("2024-10-01", "2026-10-10")).toBe("il y a 2 ans");
+  });
+});
+
+describe("dishName", () => {
+  it("trims and needs at least a letter or a digit", () => {
+    expect(dishName.parse("  Risotto  ")).toBe("Risotto");
+    expect(dishName.safeParse("").success).toBe(false);
+    expect(dishName.safeParse("🍝 !").success).toBe(false);
+    expect(dishName.safeParse("x".repeat(81)).success).toBe(false);
   });
 });
