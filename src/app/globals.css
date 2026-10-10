@@ -45,6 +45,9 @@
 
   --sky-soft: #dcecf7;
 
+  /* Dark ink that stays readable on the pastel outcome colours */
+  --on-pastel: #2b1c22;
+
   --shadow-color: 32deg 40% 45%;
   --grain-opacity: 0.05;
 }
@@ -79,6 +82,7 @@
   --amber-ink: #f9d99a;
 
   --sky-soft: #1f2b4d;
+  --on-pastel: #1d1426;
 
   --shadow-color: 260deg 60% 4%;
   --grain-opacity: 0.07;
@@ -115,6 +119,7 @@
     --amber-ink: #f9d99a;
 
     --sky-soft: #1f2b4d;
+    --on-pastel: #1d1426;
 
     --shadow-color: 260deg 60% 4%;
     --grain-opacity: 0.07;
@@ -146,6 +151,7 @@
   --color-amber-soft: var(--amber-soft);
   --color-amber-ink: var(--amber-ink);
   --color-sky-soft: var(--sky-soft);
+  --color-on-pastel: var(--on-pastel);
 
   --font-sans: "Nunito Variable", ui-rounded, system-ui, sans-serif;
   --font-display: "Fraunces Variable", ui-serif, Georgia, serif;
@@ -195,6 +201,27 @@
     letter-spacing: -0.01em;
   }
 
+  /* No lonely last word (or « ? ») on its own line in titles. */
+  h1,
+  h2,
+  h3 {
+    text-wrap: balance;
+  }
+
+  /*
+   * Desktop: the app is a phone-sized notebook resting on a soft, warm desk,
+   * never a stretched mobile layout.
+   */
+  @media (min-width: 768px) {
+    body {
+      background:
+        radial-gradient(40rem 30rem at 12% 8%, var(--coral-soft), transparent 70%),
+        radial-gradient(36rem 28rem at 92% 88%, var(--lavender-soft), transparent 70%),
+        radial-gradient(28rem 22rem at 90% 10%, var(--amber-soft), transparent 70%), var(--bg-deep);
+      background-attachment: fixed;
+    }
+  }
+
   :focus-visible {
     outline: 3px solid var(--coral);
     outline-offset: 3px;
@@ -228,6 +255,25 @@
 
 @utility tabular {
   font-variant-numeric: tabular-nums;
+}
+
+/*
+ * The app column. On a phone it is the whole screen; from 768px it becomes a
+ * rounded, elevated sheet centred on the desk background. `overflow: clip`
+ * (not hidden) keeps sticky headers working.
+ */
+@utility app-frame {
+  @media (min-width: 768px) {
+    margin-block: 1.5rem;
+    min-height: calc(100dvh - 3rem);
+    border-radius: 36px;
+    background: var(--bg);
+    box-shadow:
+      0 0 0 1px color-mix(in oklab, var(--line) 70%, transparent),
+      0 12px 28px -6px hsl(var(--shadow-color) / 0.22),
+      0 40px 80px -24px hsl(var(--shadow-color) / 0.3);
+    overflow: clip;
+  }
 }
 
 @utility pt-safe {

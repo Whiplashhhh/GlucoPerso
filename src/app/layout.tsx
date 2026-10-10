@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { cookies } from "next/headers";
 import "@fontsource-variable/fraunces/soft.css";
 import "@fontsource-variable/nunito";
+import { Peach } from "@/components/illustrations/buddies";
 import { MotionProvider } from "@/components/motion-provider";
 import { ServiceWorkerRegister } from "@/components/sw-register";
 import splashScreens from "@/lib/splash-screens.json";
@@ -47,6 +48,14 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="fr" className={themeClass(theme)}>
       <body>
+        {/* Desktop only: a little signature on the desk, next to the notebook. */}
+        <div
+          aria-hidden="true"
+          className="pointer-events-none fixed top-8 left-10 hidden items-center gap-3 lg:flex"
+        >
+          <Peach className="w-11" mood="happy" />
+          <span className="font-display text-2xl font-semibold text-ink">GlucoPerso</span>
+        </div>
         <MotionProvider>{children}</MotionProvider>
         <ServiceWorkerRegister />
       </body>
