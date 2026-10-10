@@ -153,8 +153,8 @@ export function Cloud({ mood = "calm", ...props }: BuddyProps) {
     <Svg {...props}>
       <path
         d="M27 72c-12 0-17-12-8-19-1-12 12-19 21-13 5-12 25-13 30 2 12-2 20 9 13 18 4 8-3 13-9 12H27Z"
-        fill="var(--surface)"
-        stroke="var(--line)"
+        fill="#fff8ef"
+        stroke="#ecdccb"
         strokeWidth={2}
         strokeLinejoin="round"
       />
