@@ -7,6 +7,7 @@ import { nextCookies } from "better-auth/next-js";
 import { db } from "@/lib/db";
 import { env, smtpEnabled } from "@/lib/env";
 import { throttleKey } from "@/lib/security/codes";
+import { THEME_COOKIE, themeChoiceOf, themeCookieOptions } from "@/lib/theme";
 import { redactLogMessage } from "@/lib/security/redact";
 import { sendPasswordResetEmail } from "@/server/mailer";
 import { LockedError, assertNotLocked, registerFailure, registerSuccess } from "@/server/throttle";
@@ -21,6 +22,7 @@ const ARGON2 = {
 };
 
 const SIGN_IN_PATH = "/sign-in/email";
+const SECURE_COOKIES = env.BETTER_AUTH_URL.startsWith("https://");
 
 function emailFromBody(body: unknown): string {
   if (body && typeof body === "object" && "email" in body && typeof body.email === "string") {
@@ -92,7 +94,7 @@ export const auth = betterAuth({
     },
   },
   advanced: {
-    useSecureCookies: env.BETTER_AUTH_URL.startsWith("https://"),
+    useSecureCookies: SECURE_COOKIES,
     defaultCookieAttributes: { httpOnly: true, sameSite: "lax" },
     ipAddress: env.TRUSTED_PROXIES.length ? { trustedProxies: env.TRUSTED_PROXIES } : undefined,
   },
@@ -118,8 +120,25 @@ export const auth = betterAuth({
     after: createAuthMiddleware(async (ctx) => {
       if (ctx.path !== SIGN_IN_PATH) return;
       const key = throttleKey("signin", emailFromBody(ctx.body));
-      if (ctx.context.newSession) await registerSuccess(key);
-      else await registerFailure(key);
+      const session = ctx.context.newSession;
+      if (!session) {
+        await registerFailure(key);
+        return;
+      }
+      await registerSuccess(key);
+      // Brings this device's theme cookie in line with her saved choice, so
+      // the login pages match the theme picked on another device.
+      const settings = await db.userSettings.findUnique({
+        where: { userId: session.user.id },
+        select: { theme: true },
+      });
+      if (settings) {
+        ctx.setCookie(
+          THEME_COOKIE,
+          themeChoiceOf(settings.theme),
+          themeCookieOptions(SECURE_COOKIES),
+        );
+      }
     }),
   },
   // nextCookies must stay last so Server Actions can set the session cookie.
