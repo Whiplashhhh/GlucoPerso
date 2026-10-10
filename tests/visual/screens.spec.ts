@@ -165,6 +165,51 @@ async function logMeal(
   return new URL(page.url()).searchParams.get("ajout") ?? "";
 }
 
+test("dishes screens", async ({ page }) => {
+  test.setTimeout(120_000);
+  await registerAndOnboard(page, { name: "Léa" });
+  await page.goto("/plats");
+  await shoot(page, "70-plats-vide");
+
+  const pesto = await logMeal(page, {
+    name: "Pâtes au pesto",
+    digits: ["6", "0"],
+    notes: "Avec un peu de parmesan",
+    photo: true,
+  });
+  await page.goto(`/retour/${pesto}`);
+  await page.getByRole("radio", { name: /Pile poil/ }).click();
+  await page.getByRole("button", { name: "C'est noté" }).click();
+  await page.getByRole("link", { name: "Retour à l'accueil" }).waitFor();
+  await logMeal(page, { name: "pates pesto", digits: ["7", "0"], tag: /Sport/ });
+  await logMeal(page, { name: "Raclette", digits: ["8", "5"], tag: /Absorption lente/ });
+  await logMeal(page, { name: "Crêpes au sucre", digits: ["4", "0"] });
+  await logMeal(page, { name: "Poke bowl saumon", digits: ["5", "5"], photo: true });
+
+  await page.goto("/plats");
+  await page.getByRole("link", { name: /Pâtes au pesto/ }).click();
+  await page.waitForURL(/\/plats\/[^/]+$/);
+  const dishUrl = page.url();
+  await page.getByRole("button", { name: "Favori" }).click();
+  await page.getByRole("button", { name: "Favori", pressed: true }).waitFor();
+  await page.goto("/plats");
+  await page.getByRole("link", { name: /Crêpes au sucre/ }).click();
+  await page.getByRole("button", { name: "Favori" }).click();
+  await page.getByRole("button", { name: "Favori", pressed: true }).waitFor();
+
+  await page.goto("/plats");
+  await shoot(page, "71-plats");
+  await page.goto(dishUrl);
+  await page.getByRole("heading", { name: "Pâtes au pesto", level: 1 }).waitFor();
+  await shoot(page, "72-plat-detail");
+  await page.getByRole("button", { name: "Fusionner…" }).click();
+  await page.getByRole("dialog").waitFor();
+  await shoot(page, "73-plat-fusion");
+
+  await page.goto("/repas/nouveau");
+  await shoot(page, "74-saisie-favoris");
+});
+
 test("calendar screens", async ({ page }) => {
   await registerAndOnboard(page, { name: "Léa" });
   const raclette = await logMeal(page, {

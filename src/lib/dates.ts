@@ -17,6 +17,17 @@ export function timeIn(date: Date, timeZone: string): string {
   return format(new TZDate(date, timeZone), "HH:mm");
 }
 
+/** « aujourd'hui », « hier », « il y a 5 jours », « il y a 2 mois » between two day keys. */
+export function sinceLabel(fromKey: string, todayKey: string): string {
+  const days = Math.round((Date.parse(todayKey) - Date.parse(fromKey)) / 86_400_000);
+  if (days <= 0) return "aujourd'hui";
+  if (days === 1) return "hier";
+  if (days < 45) return `il y a ${days} jours`;
+  if (days < 365) return `il y a ${Math.round(days / 30)} mois`;
+  const years = Math.round(days / 365);
+  return years > 1 ? `il y a ${years} ans` : "il y a un an";
+}
+
 /** First instant of the month `monthKey` ("yyyy-MM") in the user's timezone. */
 export function monthStart(monthKey: string, timeZone: string): Date {
   const [year, month] = monthKey.split("-").map(Number);

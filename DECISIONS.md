@@ -61,3 +61,12 @@ Format : date — décision — raison.
 - **2026-10-10 — Édition** : `ratioUsed` garde le ratio en vigueur lors de la saisie (historique) ; une photo remplacée ou retirée est supprimée (fichiers + ligne) immédiatement. Une grosse dose déjà confirmée à la saisie n'est pas redemandée si elle ne change pas.
 - **2026-10-10 — Suppression** : suppression douce optimiste (le repas disparaît de toutes les listes tout de suite), toast « Repas supprimé · Annuler » porté par le layout `(app)` pour survivre au retour arrière. Les repas supprimés depuis plus de 7 jours sont purgés (photos comprises) à chaque nouvelle suppression.
 - **2026-10-10 — Recherche** : nom, notes et note de retour (insensible à la casse), et contextes cumulatifs (tous les tags choisis, `hasEvery`). 200 résultats max, groupés par mois.
+
+## Mes plats
+
+- **2026-10-10 — Statistiques** dans un module pur (`src/lib/dish-stats.ts`, testé) calculé sur les repas non supprimés. « La dose qui a le mieux marché » = couple (glucides arrondis au gramme, bolus repas = insuline − correction arrondi à 0,5 U) le plus fréquent parmi les repas « pile poil » ; égalité → le plus récent. Sans « pile poil », « Manger ça » et les favoris reprennent le dernier repas (correction exclue).
+- **2026-10-10 — Bibliothèque** : favoris en cartes, puis les autres plats par dernier repas ; filtre côté client (tous les mots, sans accents). Un plat dont tous les repas sont supprimés n'apparaît plus (sa page renvoie 404).
+- **2026-10-10 — Renommer** change le nom du plat, pas celui des repas (ils gardent ce qu'elle a tapé). Un nom déjà porté par un autre de ses plats est refusé avec une invitation à fusionner (pas de doublon de `normalizedName`, que le regroupement automatique prend comme correspondance exacte).
+- **2026-10-10 — Fusion** : depuis la page du plat source, on choisit la cible ; transaction qui vérifie que les deux plats sont à elle, déplace tous ses repas (supprimés compris, pour l'annulation), garde le favori si l'un des deux l'était, puis supprime la source.
+- **2026-10-10 — Favoris dans la saisie** : rangée de puces sous le champ du nom (et non au-dessus de la photo) pour que le champ ne saute pas quand elle commence à taper ; visible seulement quand le nom est vide. `?plat=` n'est pris en compte que pour un de ses plats, sinon ignoré.
+- **2026-10-10 — Favori optimiste** (`useOptimistic`) : l'étoile répond tout de suite, un toast doux apparaît si le serveur refuse.

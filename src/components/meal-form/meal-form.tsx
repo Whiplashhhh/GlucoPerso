@@ -65,17 +65,30 @@ export type MealFormInitial = {
 const toText = (value: number | null | undefined, digits = 1) =>
   value === null || value === undefined ? "" : formatNumber(value, digits).replace(/\s/g, "");
 
+/** A dish offered for one-tap entry, with its best-working values. */
+export type QuickDish = {
+  id: string;
+  name: string;
+  values: { carbsGrams: number; units: number } | null;
+};
+
 export function MealForm({
   ratios,
   settings,
   initial,
   mealId,
+  prefill,
+  favorites = [],
 }: {
   ratios: RatioTable;
   settings: MealFormSettings;
   /** With `mealId`: edits that meal instead of creating a new one. */
   initial?: MealFormInitial;
   mealId?: string;
+  /** New meal started from « Manger ça » on a dish page. */
+  prefill?: QuickDish;
+  /** Favourite dishes shown as chips while the name is empty. */
+  favorites?: QuickDish[];
 }) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
@@ -85,7 +98,7 @@ export function MealForm({
 
   const [photoId, setPhotoId] = useState<string | null>(initial?.photoId ?? null);
   const [photoBusy, setPhotoBusy] = useState(false);
-  const [name, setName] = useState(initial?.name ?? "");
+  const [name, setName] = useState(initial?.name ?? prefill?.name ?? "");
   const [memories, setMemories] = useState<DishMemory[]>([]);
   const [chosen, setChosen] = useState<DishMemory | null>(null);
   const [moment, setMoment] = useState<MealMoment>(
@@ -95,15 +108,15 @@ export function MealForm({
     initial ? new Date(initial.eatenAt) : null,
   );
   const [values, setValues] = useState<Record<Field, string>>(() => ({
-    carbs: toText(initial?.carbsGrams, 0),
-    units: toText(initial?.insulinUnits),
+    carbs: toText(initial?.carbsGrams ?? prefill?.values?.carbsGrams, 0),
+    units: toText(initial?.insulinUnits ?? prefill?.values?.units),
     correction: initial?.correctionUnits ? toText(initial.correctionUnits) : "",
     glucose:
       initial?.glucoseBefore == null
         ? ""
         : toText(toUnit(initial.glucoseBefore, unit), unit === "MG_DL" ? 0 : 2),
   }));
-  const [active, setActive] = useState<Field>("carbs");
+  const [active, setActive] = useState<Field>(prefill?.values ? "units" : "carbs");
   const [tags, setTags] = useState<Set<MealTag>>(() => new Set(initial?.tags ?? []));
   const [notes, setNotes] = useState(initial?.notes ?? "");
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -173,6 +186,21 @@ export function MealForm({
     if (last.tags.includes("SLOW_ABSORPTION")) {
       setTags((current) => new Set(current).add("SLOW_ABSORPTION"));
     }
+    setActive("units");
+  }
+
+  /** One-tap favourite: name plus the values that worked best. */
+  function pickFavorite(dish: QuickDish) {
+    setName(dish.name);
+    setChosen(null);
+    setErrors((current) => ({ ...current, name: "", carbsGrams: "", insulinUnits: "" }));
+    if (!dish.values) return;
+    const { carbsGrams, units: bolus } = dish.values;
+    setValues((current) => ({
+      ...current,
+      carbs: toText(carbsGrams, 0),
+      units: toText(bolus),
+    }));
     setActive("units");
   }
 
@@ -286,6 +314,33 @@ export function MealForm({
           />
           {errors.name && (
             <p className="pl-1 text-sm font-semibold text-coral-ink">{errors.name}</p>
+          )}
+          {!editing && name === "" && favorites.length > 0 && (
+            <div className="flex flex-col gap-2">
+              <p className="pl-1 text-sm font-bold text-ink-soft">⭐ Mes favoris, en un geste</p>
+              <ul
+                className="-mx-5 flex gap-2.5 overflow-x-auto px-5 pt-0.5 pb-2"
+                aria-label="Mes plats favoris"
+              >
+                {favorites.map((dish) => (
+                  <li key={dish.id} className="shrink-0">
+                    <button
+                      type="button"
+                      onClick={() => pickFavorite(dish)}
+                      className="flex min-h-14 max-w-56 flex-col items-start justify-center rounded-[20px] border-2 border-amber/40 bg-amber-soft px-4 py-2 text-left text-amber-ink shadow-soft transition-transform active:scale-95"
+                    >
+                      <span className="w-full truncate font-extrabold">⭐ {dish.name}</span>
+                      {dish.values && (
+                        <span className="text-sm font-bold whitespace-nowrap tabular opacity-80">
+                          {formatNumber(dish.values.carbsGrams, 0)} g ·{" "}
+                          {formatNumber(dish.values.units)} U
+                        </span>
+                      )}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </div>
           )}
           {suggestions.length > 0 && (
             <ul
