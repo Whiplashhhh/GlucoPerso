@@ -5,6 +5,7 @@ import { CalendarClock, X } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState, useTransition } from "react";
+import { Peach } from "@/components/illustrations/buddies";
 import { Button } from "@/components/ui/button";
 import { Notice } from "@/components/ui/card";
 import { Chip } from "@/components/ui/chip";
@@ -123,6 +124,16 @@ export function MealForm({
   const [formError, setFormError] = useState<string | null>(null);
   const [confirming, setConfirming] = useState(false);
   const searchSeq = useRef(0);
+  const momentsRow = useRef<HTMLDivElement>(null);
+
+  // The pre-selected moment (« Dîner » at night) is never hidden off-screen.
+  useEffect(() => {
+    const row = momentsRow.current;
+    const chip = row?.querySelector<HTMLElement>('[aria-pressed="true"]');
+    if (!row || !chip) return;
+    const overflow = chip.offsetLeft + chip.offsetWidth - row.clientWidth + 20;
+    if (overflow > 0) row.scrollLeft = overflow;
+  }, [moment]);
 
   const carbs = parseDecimal(values.carbs) ?? 0;
   const units = parseDecimal(values.units) ?? 0;
@@ -272,7 +283,7 @@ export function MealForm({
       initial={{ y: 40, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ type: "spring", stiffness: 360, damping: 34 }}
-      className="flex min-h-dvh flex-col"
+      className="flex min-h-dvh flex-col md:min-h-[calc(100dvh-3rem)]"
     >
       <header className="sticky top-0 z-20 bg-bg/85 pt-safe backdrop-blur-lg">
         <div className="flex items-center justify-between px-3 py-2">
@@ -363,7 +374,7 @@ export function MealForm({
 
         <section className="flex flex-col gap-3">
           <p className="pl-1 text-sm font-bold text-ink-soft">Quel moment ?</p>
-          <div className="-mx-5 flex gap-2 overflow-x-auto px-5 pb-1">
+          <div ref={momentsRow} className="relative -mx-5 flex gap-2 overflow-x-auto px-5 pb-1">
             {MEAL_MOMENTS.map((value) => (
               <Chip key={value} selected={value === moment} onClick={() => setMoment(value)}>
                 {MOMENT_EMOJI[value]} {MOMENT_LABEL[value]}
@@ -520,7 +531,7 @@ export function MealForm({
         </section>
       </div>
 
-      <div className="pointer-events-none fixed inset-x-0 bottom-0 z-30 mx-auto w-full max-w-md bg-gradient-to-t from-bg via-bg/95 to-transparent px-5 pt-8 pb-safe">
+      <div className="pointer-events-none fixed inset-x-0 bottom-0 z-30 mx-auto w-full max-w-md bg-gradient-to-t from-bg via-bg/95 to-transparent px-5 pt-8 pb-safe md:bottom-6 md:rounded-b-[36px]">
         {formError && (
           <Notice tone="warm" className="pointer-events-auto mb-3">
             {formError}
@@ -539,7 +550,8 @@ export function MealForm({
       <Modal
         open={confirming}
         onClose={() => setConfirming(false)}
-        title={`C'est bien ${formatNumber(units)} unités ?`}
+        title={`C'est bien ${formatNumber(units)} unités\u00a0?`}
+        art={<Peach className="w-16" mood="wink" />}
       >
         <p className="mb-5 text-center text-ink-soft">
           C&apos;est un peu plus que d&apos;habitude, on vérifie juste ensemble 🙂

@@ -25,7 +25,8 @@ export function DishMemoryCard({ memory, onReuse }: { memory: Memory; onReuse: (
         <div className="flex gap-3 rounded-[20px] bg-amber-soft px-4 py-3 text-amber-ink">
           <Lightbulb className="mt-0.5 shrink-0" size={20} />
           <p className="font-semibold">
-            La dernière fois, tu avais noté : <span className="italic">« {memory.reminder} »</span>
+            La dernière fois, tu avais noté&nbsp;:{" "}
+            <span className="italic">«&nbsp;{memory.reminder}&nbsp;»</span>
           </p>
         </div>
       )}

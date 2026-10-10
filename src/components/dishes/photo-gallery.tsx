@@ -49,7 +49,7 @@ export function PhotoGallery({ name, photos }: { name: string; photos: GalleryPh
       {photos.length > 1 && (
         <span
           aria-hidden="true"
-          className="absolute right-4 bottom-4 rounded-full bg-ink/60 px-3 py-1 text-sm font-extrabold text-white tabular backdrop-blur"
+          className="absolute right-4 bottom-4 rounded-full bg-black/55 px-3 py-1 text-sm font-extrabold text-white tabular backdrop-blur"
         >
           {current + 1} / {photos.length}
         </span>

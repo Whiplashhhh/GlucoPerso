@@ -3,7 +3,7 @@
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { type PanInfo, motion } from "motion/react";
 import { useState } from "react";
-import { Sparkle } from "@/components/illustrations/buddies";
+import { Bowl, Sparkle } from "@/components/illustrations/buddies";
 import { cn } from "@/lib/cn";
 import { formatNumber } from "@/lib/format";
 import { MOMENT_EMOJI, MOMENT_LABEL, type RatioMoment } from "@/lib/moments";
@@ -50,10 +50,14 @@ export function RatioHero({
       className="relative overflow-hidden rounded-[28px] bg-coral-soft shadow-soft"
     >
       <Sparkle className="absolute top-5 right-6 w-5 text-coral" />
-      <Sparkle className="absolute top-14 right-14 w-3 text-amber" />
+      <Sparkle className="absolute top-14 right-16 w-3 text-amber" />
       <div
         aria-hidden="true"
-        className="absolute -right-16 -bottom-20 size-56 rounded-full bg-coral/15"
+        className="absolute -right-14 -bottom-24 size-60 rounded-full bg-coral/15"
+      />
+      <Bowl
+        className="pointer-events-none absolute right-3 bottom-14 w-28 motion-safe:animate-[bob_6s_ease-in-out_infinite]"
+        mood="happy"
       />
       <motion.div
         className="flex"
@@ -86,7 +90,7 @@ export function RatioHero({
                 </span>
                 <span className="pb-2 font-display text-4xl font-semibold text-ink-soft">g</span>
               </div>
-              <div className="mt-4 flex items-center gap-2.5 text-sm font-bold text-ink-soft">
+              <div className="mt-4 flex flex-wrap items-center gap-x-2.5 gap-y-1.5 text-sm font-bold text-ink-soft">
                 <span className="flex gap-1" aria-hidden="true">
                   {[1, 2, 3].map((bar) => (
                     <span
@@ -98,12 +102,11 @@ export function RatioHero({
                     />
                   ))}
                 </span>
-                <span>
-                  Confiance {confidence.label}
-                  <span className="font-semibold text-ink-faint">
-                    {" "}
-                    · {slide.mealCount} repas évalué{slide.mealCount > 1 ? "s" : ""}
-                  </span>
+                <span className="whitespace-nowrap">Confiance {confidence.label}</span>
+                <span className="rounded-full bg-surface/70 px-2.5 py-0.5 text-[13px] font-bold whitespace-nowrap text-ink-soft tabular">
+                  {slide.mealCount === 0
+                    ? "Pas encore de retour"
+                    : `${slide.mealCount} repas évalué${slide.mealCount > 1 ? "s" : ""}`}
                 </span>
               </div>
             </div>

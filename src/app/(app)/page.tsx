@@ -4,7 +4,7 @@ import { BasalCheck } from "@/components/home/basal-check";
 import type { MealRowData } from "@/components/home/meal-row";
 import { RatioHero, type RatioSlide } from "@/components/home/ratio-hero";
 import { SuggestionCard } from "@/components/home/suggestion-card";
-import { Peach, Sun } from "@/components/illustrations/buddies";
+import { Moon, Peach, Star, Sun } from "@/components/illustrations/buddies";
 import { MealList } from "@/components/meals/meal-list";
 import { MedicalNote } from "@/components/medical-note";
 import { FlashToast } from "@/components/toast";
@@ -29,7 +29,9 @@ export default async function HomePage({ searchParams }: PageProps<"/">) {
     listMealsBetween(user.id, start, end),
   ]);
 
-  const hello = greeting(user.name, hourIn(now, tz));
+  const hour = hourIn(now, tz);
+  const hello = greeting(user.name, hour);
+  const daytime = hour >= 6 && hour < 19;
   const currentKey = resolveRatio(momentAt(now, tz), insights.ratios)?.key ?? "DEFAULT";
   const slides: RatioSlide[] = insights.analyses.map((analysis) => ({
     key: analysis.key,
@@ -59,7 +61,11 @@ export default async function HomePage({ searchParams }: PageProps<"/">) {
           <h1 className="text-[2.1rem] leading-tight font-semibold">{hello.title}</h1>
           <p className="mt-1 text-ink-soft">{hello.subtitle}</p>
         </div>
-        <Sun className="-mt-1 w-16 shrink-0 motion-safe:animate-[bob_5s_ease-in-out_infinite]" />
+        {daytime ? (
+          <Sun className="-mt-1 w-16 shrink-0 motion-safe:animate-[bob_5s_ease-in-out_infinite]" />
+        ) : (
+          <Moon className="-mt-1 w-16 shrink-0 motion-safe:animate-[bob_5s_ease-in-out_infinite]" />
+        )}
       </header>
 
       {slides.length > 0 && <RatioHero slides={slides} initialKey={currentKey} />}
@@ -70,7 +76,7 @@ export default async function HomePage({ searchParams }: PageProps<"/">) {
         <Link
           key={meal.id}
           href={`/retour/${meal.id}`}
-          className="flex items-center gap-4 rounded-[24px] bg-surface p-4 shadow-soft ring-2 ring-coral/30 transition-transform active:scale-[0.98]"
+          className="relative flex items-center gap-4 rounded-[24px] bg-surface p-4 shadow-soft ring-2 ring-coral/40 transition-transform active:scale-[0.98]"
         >
           {meal.photos[0] ? (
             // eslint-disable-next-line @next/next/no-img-element -- authenticated photo route
@@ -82,11 +88,14 @@ export default async function HomePage({ searchParams }: PageProps<"/">) {
           ) : (
             <Peach className="w-16 shrink-0" mood="wink" />
           )}
-          <div className="flex-1">
-            <p className="font-display text-lg leading-snug font-semibold">
-              Comment ça s&apos;est passé pour {meal.name.toLowerCase()} ?
+          <div className="flex min-w-0 flex-1 flex-col gap-1">
+            <p className="text-xs font-extrabold tracking-wide text-coral-ink uppercase">
+              Petit retour ?
             </p>
-            <p className="text-sm font-bold text-coral-ink">Ça prend 5 secondes →</p>
+            <p className="font-display text-lg leading-snug font-semibold text-balance">
+              Comment ça s&apos;est passé pour {meal.name.toLowerCase()}&nbsp;?
+            </p>
+            <p className="text-sm font-bold text-ink-soft">Ça prend 5 secondes →</p>
           </div>
         </Link>
       ))}
@@ -119,21 +128,28 @@ export default async function HomePage({ searchParams }: PageProps<"/">) {
           meals={todayRows}
           label="Repas d'aujourd'hui"
           empty={
-            <div className="flex flex-col items-center gap-2 rounded-[24px] border-2 border-dashed border-line px-6 py-7 text-center">
-              <Peach className="w-20" mood="calm" />
-              <p className="font-semibold text-ink-soft">
+            <div className="flex flex-col items-center gap-3 rounded-[24px] border-2 border-dashed border-line px-6 py-7 text-center">
+              <Peach
+                className="w-20 motion-safe:animate-[bob_5s_ease-in-out_infinite]"
+                mood="calm"
+              />
+              <p className="max-w-[16rem] font-semibold text-balance text-ink-soft">
                 Rien ici pour l&apos;instant… ton estomac attend son heure 🍽️
+              </p>
+              <p className="text-sm font-bold text-coral-ink">
+                Le gros + en bas, c&apos;est pour ça ✨
               </p>
             </div>
           }
         />
       </section>
 
-      <aside className="rounded-[24px] bg-surface-2 p-5">
+      <aside className="relative overflow-hidden rounded-[24px] bg-surface-2 p-5 pr-16">
+        <Star face className="absolute -right-3 -bottom-3 w-20 -rotate-12 opacity-90" />
         <p className="text-xs font-extrabold tracking-wide text-coral-ink uppercase">
           Le mot du jour
         </p>
-        <p className="mt-1 font-display text-xl leading-snug font-medium text-ink">
+        <p className="mt-1 font-display text-xl leading-snug font-medium text-balance text-ink">
           {pickForDay(WORDS_OF_THE_DAY, now)}
         </p>
       </aside>

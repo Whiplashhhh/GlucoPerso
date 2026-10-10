@@ -70,7 +70,7 @@ export function BasalCard({
               initial={{ scale: 0.4, rotate: -30 }}
               animate={{ scale: 1, rotate: 0 }}
               transition={{ type: "spring", stiffness: 420, damping: 14 }}
-              className="grid size-12 shrink-0 place-items-center rounded-full bg-mint text-white"
+              className="grid size-12 shrink-0 place-items-center rounded-full bg-mint text-on-pastel"
             >
               <Check size={26} strokeWidth={3} aria-hidden="true" />
             </motion.span>
@@ -129,7 +129,7 @@ export function BasalCard({
                   type="time"
                   value={time}
                   onChange={(event) => setTime(event.target.value)}
-                  className="min-h-12 w-[6.75rem] rounded-[16px] border-2 border-line bg-surface-2 px-2 text-base font-bold text-ink tabular outline-none focus:border-coral"
+                  className="min-h-12 w-[7.75rem] rounded-[16px] border-2 border-line bg-surface-2 px-2 text-center text-base font-bold text-ink tabular outline-none focus:border-coral"
                 />
               </label>
             </div>

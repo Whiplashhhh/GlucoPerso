@@ -5,7 +5,7 @@ import { motion } from "motion/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
-import { Celebration } from "@/components/celebration";
+import { Celebration, CheerArt } from "@/components/celebration";
 import { Cloud, Peach, Sun } from "@/components/illustrations/buddies";
 import { Button, ButtonLink } from "@/components/ui/button";
 import { Notice } from "@/components/ui/card";
@@ -117,19 +117,35 @@ export function FeedbackFlow({
   if (done) {
     const perfect = done.outcome === "PERFECT";
     return (
-      <main className="flex min-h-dvh flex-col items-center justify-center gap-6 px-6 pt-safe pb-safe text-center">
+      <main className="flex min-h-dvh flex-col items-center justify-center gap-6 px-6 pt-safe pb-safe text-center md:min-h-[calc(100dvh-3rem)]">
         {perfect && <Celebration seed={meal.name.length + 3} />}
         <motion.div
           initial={{ scale: 0.5, rotate: -12, opacity: 0 }}
           animate={{ scale: 1, rotate: 0, opacity: 1 }}
           transition={{ type: "spring", stiffness: 260, damping: 13 }}
         >
-          {perfect ? <Sun className="w-36" mood="joy" /> : <Peach className="w-32" mood="wink" />}
+          <CheerArt tone={perfect ? "mint" : "coral"} sparkles={perfect}>
+            {perfect ? <Sun className="w-36" mood="joy" /> : <Peach className="w-32" mood="wink" />}
+          </CheerArt>
         </motion.div>
-        <h1 className="text-[2rem] leading-tight font-semibold" role="status">
+        <span
+          className={cn(
+            "rounded-full px-3 py-1 text-sm font-extrabold",
+            OUTCOME_INFO[done.outcome].soft,
+          )}
+        >
+          {OUTCOME_INFO[done.outcome].emoji} {OUTCOME_INFO[done.outcome].short}
+        </span>
+        <h1
+          className={cn(
+            "max-w-sm leading-tight font-semibold",
+            done.message.length > 50 ? "text-[1.65rem]" : "text-[2rem]",
+          )}
+          role="status"
+        >
           {done.message}
         </h1>
-        <p className="max-w-xs text-ink-soft">
+        <p className="max-w-xs text-balance text-ink-soft">
           {perfect
             ? "Ce repas rejoint ta collection des réussites."
             : "Ton ratio apprend de chaque retour, en douceur."}
@@ -142,7 +158,7 @@ export function FeedbackFlow({
   }
 
   return (
-    <main className="flex min-h-dvh flex-col pt-safe">
+    <main className="flex min-h-dvh flex-col pt-safe md:min-h-[calc(100dvh-3rem)]">
       <header className="flex items-center justify-between px-3 py-2">
         <Link
           href="/"
@@ -171,7 +187,9 @@ export function FeedbackFlow({
               className="size-24 rounded-[24px] object-cover shadow-soft"
             />
           ) : (
-            <Cloud className="w-24" mood="happy" />
+            <CheerArt tone="sky" sparkles={false} className="size-24">
+              <Cloud className="w-24" mood="happy" />
+            </CheerArt>
           )}
           <h1 className="text-[1.9rem] leading-tight font-semibold">
             Comment ça s&apos;est passé pour {meal.name.toLowerCase()} ?
@@ -220,8 +238,10 @@ export function FeedbackFlow({
 
         <details className="group rounded-[24px] bg-surface p-4 shadow-soft">
           <summary className="cursor-pointer list-none font-bold text-ink">
-            Ajouter des valeurs (facultatif)
-            <span className="float-right text-coral-ink group-open:hidden">+</span>
+            Ajouter des valeurs <span className="font-semibold text-ink-soft">(facultatif)</span>
+            <span className="float-right grid size-7 place-items-center rounded-full bg-coral-soft text-coral-ink transition-transform group-open:rotate-45">
+              +
+            </span>
           </summary>
           <div className="mt-4 flex flex-col gap-4">
             <div className="grid grid-cols-3 gap-2">
@@ -259,7 +279,7 @@ export function FeedbackFlow({
         </details>
       </div>
 
-      <div className="pointer-events-none fixed inset-x-0 bottom-0 mx-auto w-full max-w-md bg-gradient-to-t from-bg via-bg/95 to-transparent px-5 pt-8 pb-safe">
+      <div className="pointer-events-none fixed inset-x-0 bottom-0 mx-auto w-full max-w-md bg-gradient-to-t from-bg via-bg/95 to-transparent px-5 pt-8 pb-safe md:bottom-6 md:rounded-b-[36px]">
         {error && (
           <Notice tone="warm" className="pointer-events-auto mb-3">
             {error}
