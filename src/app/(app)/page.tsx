@@ -1,5 +1,6 @@
 import { HeartHandshake } from "lucide-react";
 import Link from "next/link";
+import { BasalCheck } from "@/components/home/basal-check";
 import { type MealRowData, MealRow } from "@/components/home/meal-row";
 import { RatioHero, type RatioSlide } from "@/components/home/ratio-hero";
 import { SuggestionCard } from "@/components/home/suggestion-card";
@@ -61,6 +62,8 @@ export default async function HomePage({ searchParams }: PageProps<"/">) {
       </header>
 
       {slides.length > 0 && <RatioHero slides={slides} initialKey={currentKey} />}
+
+      <BasalCheck userId={user.id} timeZone={tz} penIncrement={settings.penIncrement} />
 
       {pending.map((meal) => (
         <Link
