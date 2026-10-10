@@ -79,16 +79,14 @@ export function RatioHero({
                 {MOMENT_EMOJI[slide.key]}{" "}
                 {slide.key === "DEFAULT" ? "Ton ratio" : `Ton ratio · ${MOMENT_LABEL[slide.key]}`}
               </p>
-              <div className="mt-2 flex items-end gap-3">
-                <span className="pb-3 font-display text-2xl font-semibold text-ink-soft">
-                  1&nbsp;U pour
-                </span>
-                <span className="font-display text-[5.5rem] leading-[0.85] font-semibold text-ink tabular">
+              <p className="mt-3 font-display text-xl font-semibold text-ink-soft">1&nbsp;U pour</p>
+              <div className="flex items-end gap-2">
+                <span className="font-display text-[clamp(4rem,22vw,6rem)] leading-[0.9] font-semibold text-ink tabular">
                   {formatNumber(slide.gramsPerUnit)}
                 </span>
-                <span className="pb-3 font-display text-3xl font-semibold text-ink-soft">g</span>
+                <span className="pb-2 font-display text-4xl font-semibold text-ink-soft">g</span>
               </div>
-              <div className="mt-4 flex items-center gap-2 text-sm font-bold text-ink-soft">
+              <div className="mt-4 flex items-center gap-2.5 text-sm font-bold text-ink-soft">
                 <span className="flex gap-1" aria-hidden="true">
                   {[1, 2, 3].map((bar) => (
                     <span
@@ -100,9 +98,12 @@ export function RatioHero({
                     />
                   ))}
                 </span>
-                Confiance {confidence.label}
-                <span className="font-semibold text-ink-faint">
-                  · {slide.mealCount} repas évalué{slide.mealCount > 1 ? "s" : ""}
+                <span>
+                  Confiance {confidence.label}
+                  <span className="font-semibold text-ink-faint">
+                    {" "}
+                    · {slide.mealCount} repas évalué{slide.mealCount > 1 ? "s" : ""}
+                  </span>
                 </span>
               </div>
             </div>

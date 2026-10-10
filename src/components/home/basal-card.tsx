@@ -111,7 +111,7 @@ export function BasalCard({
               </div>
             </div>
             <div className="flex items-center gap-3">
-              <div className="flex-1">
+              <div className="min-w-0 flex-1">
                 <Stepper
                   label="unités de lente"
                   size="md"
@@ -123,13 +123,13 @@ export function BasalCard({
                   suffix="U"
                 />
               </div>
-              <label className="flex flex-col items-center gap-0.5">
+              <label className="flex shrink-0 flex-col items-center gap-0.5">
                 <span className="sr-only">Heure de la lente</span>
                 <input
                   type="time"
                   value={time}
                   onChange={(event) => setTime(event.target.value)}
-                  className="min-h-12 rounded-[16px] border-2 border-line bg-surface-2 px-2 text-base font-bold text-ink tabular outline-none focus:border-coral"
+                  className="min-h-12 w-[6.75rem] rounded-[16px] border-2 border-line bg-surface-2 px-2 text-base font-bold text-ink tabular outline-none focus:border-coral"
                 />
               </label>
             </div>
