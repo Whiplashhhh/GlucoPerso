@@ -42,3 +42,14 @@ Format : date — décision — raison.
 - **2026-10-10 — Compose** : Postgres sur un réseau interne sans port publié ; l'appli écoute sur `127.0.0.1:3000` ; Caddy optionnel (profil `caddy`) qui retire le paramètre de recherche des logs.
 - **2026-10-10 — Sauvegardes** : dump Postgres + volume `/data` complet (photos + secret) avec sommes de contrôle, 14 dernières gardées ; la restauration fait d'abord une sauvegarde de sécurité.
 - **2026-10-10 — Seed de démo** : données déterministes, historique antidaté écrit directement, refuse la production sans `DEMO_SEED_ALLOW_PRODUCTION=1` (mot de passe public). Les dîners récents sont calibrés pour produire la suggestion 12 → 13.
+
+## Paramètres, lente, évolution, exports
+
+- **2026-10-10 — Enregistrement immédiat** des paramètres (les steppers attendent 550 ms) ; en cas d'erreur serveur, le champ revient à la dernière valeur enregistrée.
+- **2026-10-10 — Cookie de thème** `gp-theme` httpOnly, 1 an, `Secure` en HTTPS, posé par l'action.
+- **2026-10-10 — Ratios** : ce sont les lignes `Ratio` qui font foi. Retirer un ratio de moment journalise « Retour au ratio général ». Les ratios manuels ne sont bornés que par 1–150 g ; les bornes 3–50 ne s'appliquent qu'aux suggestions.
+- **2026-10-10 — Plages** : seuil haut 1,2–3,0 g/L (> seuil hypo), confirmation de dose 5–60 U, bornes min 1–20 / max 10–150.
+- **2026-10-10 — Lente** : une entrée par jour local (fuseau de l'utilisatrice), annulable.
+- **2026-10-10 — Exports** : 30 derniers jours par défaut, 3 ans max ; CSV `;` + BOM, cellules commençant par `= + - @` neutralisées (injection de formules) ; PDF A4 sans emoji ni photo. ZIP RGPD : toutes les données personnelles y compris repas supprimés et métadonnées de session, sans hachés de mot de passe, jetons ni codes.
+- **2026-10-10 — Suppression du compte** : mot de passe redemandé (échecs limités), fichiers photo puis utilisateur (cascade).
+- **2026-10-10 — Graphiques** : barres de résultats en HTML avec motifs (rayures, pois) et nombres en texte, pour ne pas dépendre de la couleur ; courbe des ratios Recharts en marches avec couleurs en variables CSS (mode sombre automatique).
