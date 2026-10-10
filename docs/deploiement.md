@@ -74,6 +74,7 @@ Dans `.env`, renseigner au minimum (section « Docker » en bas du fichier) :
 | `APP_BIND` / `APP_PORT` | où publier l'appli sur l'hôte (défaut `127.0.0.1:3000`, à garder derrière un proxy)                          |
 | `TRUSTED_PROXIES`       | voir ci-dessous                                                                                              |
 | `SMTP_*`                | optionnel, pour la réinitialisation du mot de passe par e-mail (les codes de récupération marchent toujours) |
+| `VAPID_*`               | optionnel, clés des rappels Web Push (voir « Rappels » plus bas) ; vides, elles sont dérivées du secret      |
 | `DOMAIN` / `ACME_EMAIL` | seulement avec le Caddy intégré                                                                              |
 
 `DATABASE_URL` et `PHOTOS_DIR` de `.env` sont ignorées par la pile Docker : elle
@@ -283,3 +284,22 @@ restaurer avec `scripts/restore.sh`.
   changent.
 - Sur iPhone : Safari → Partager → « Sur l'écran d'accueil ». Sur Android :
   menu de Chrome → « Installer l'application ».
+
+### Rappels « Comment ça s'est passé ? » (Web Push)
+
+- Elle active le rappel appareil par appareil dans **Moi → Rappels**. Sur
+  iPhone (iOS 16.4+), il faut d'abord ajouter l'appli à l'écran d'accueil.
+- Le serveur vérifie chaque minute (`src/instrumentation.ts` →
+  `src/server/push/reminders.ts`) les repas mangés il y a 2 h. Pas de rappel
+  si elle a déjà répondu (ou passé), supprimé le repas, ou l'a noté après coup
+  (plus de 2 h après l'heure du repas). Un rappel part au plus une fois par
+  repas, et au plus 2 h en retard (serveur arrêté…).
+- La notification ne contient ni le nom du plat ni de chiffres : seulement le
+  moment et l'heure (« Ton déjeuner de 12:30 : un petit retour ? »).
+- Clés VAPID : sans `VAPID_PUBLIC_KEY` / `VAPID_PRIVATE_KEY`, elles sont
+  dérivées de `BETTER_AUTH_SECRET`, rien à configurer. Changer ce secret
+  invalide les abonnements : chaque appareil se réabonne tout seul à la
+  prochaine visite de « Moi ». `BETTER_AUTH_URL` doit être en https (ou
+  renseigner `VAPID_SUBJECT=mailto:…`) pour que les iPhone acceptent les
+  envois. Le serveur doit pouvoir joindre en sortie les services de push
+  (Apple, Google, Mozilla) en HTTPS.

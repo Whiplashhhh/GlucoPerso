@@ -6,6 +6,7 @@ test("settings: dark theme, pen increment and a manual ratio change", async ({ p
   await registerAndOnboard(page, { name: "Léa" });
   await page.getByRole("link", { name: "Moi" }).click();
   await expect(page.getByRole("heading", { name: "Moi", exact: true })).toBeVisible();
+  await expect(page.getByRole("switch", { name: "Rappel 2 h après le repas" })).toBeVisible();
 
   await page.getByRole("radio", { name: "Sombre" }).click();
   await expect(page.getByText("Enregistré")).toBeVisible();
