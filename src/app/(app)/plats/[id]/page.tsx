@@ -17,13 +17,14 @@ import { dayKey, sinceLabel } from "@/lib/dates";
 import { perfectSummary, timesEaten } from "@/lib/dish-stats";
 import { formatGrams, formatRatio, formatUnits } from "@/lib/format";
 import { getDish, listMergeTargets } from "@/server/repos/dishes";
+import { idParam } from "@/server/params";
 import { requireAppUser } from "@/server/session";
 
 export const metadata: Metadata = { title: "Mon plat" };
 
 export default async function DishPage({ params, searchParams }: PageProps<"/plats/[id]">) {
   const { user, settings } = await requireAppUser();
-  const { id } = await params;
+  const id = await idParam(params);
   const { fusion } = await searchParams;
   const [dish, targets] = await Promise.all([getDish(user.id, id), listMergeTargets(user.id, id)]);
   if (!dish || dish.meals.length === 0) notFound();
