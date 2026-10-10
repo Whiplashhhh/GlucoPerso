@@ -72,6 +72,28 @@ jobs:
           path: playwright-report
           retention-days: 7
 
+  docker:
+    name: Docker image build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: docker/setup-buildx-action@v3
+      - name: Build (no push)
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: false
+          load: true
+          tags: glucoperso:ci
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+      - name: Native modules load in the image
+        run: >-
+          docker run --rm --entrypoint node glucoperso:ci -e
+          "require('sharp');require('@node-rs/argon2');console.log('native modules OK')"
+      - name: Prisma CLI available for migrations
+        run: docker run --rm --entrypoint /opt/migrate/node_modules/.bin/prisma glucoperso:ci --version
+
   pr-title:
     name: Conventional PR title
     if: github.event_name == 'pull_request'

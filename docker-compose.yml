@@ -1,0 +1,89 @@
+# GlucoPerso production stack. See docs/deploiement.md.
+#   cp .env.example .env   # then fill the « Docker » section
+#   docker compose up -d --build                     # app + database
+#   docker compose --profile caddy up -d --build     # + bundled Caddy (HTTPS)
+#
+# Variables are read from `.env` next to this file.
+
+services:
+  db:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: glucoperso
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}
+      POSTGRES_DB: glucoperso
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    # No published port: the database is only reachable from the app.
+    networks: [backend]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U glucoperso -d glucoperso"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    security_opt: [no-new-privileges:true]
+
+  app:
+    build: .
+    image: glucoperso:latest
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://glucoperso:${POSTGRES_PASSWORD}@db:5432/glucoperso
+      BETTER_AUTH_URL: ${BETTER_AUTH_URL:?set BETTER_AUTH_URL (public https URL) in .env}
+      # Leave empty: generated on first start and kept in the data volume.
+      BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:-}
+      REGISTRATION_MODE: ${REGISTRATION_MODE:-invite}
+      TRUSTED_PROXIES: ${TRUSTED_PROXIES:-}
+      SMTP_HOST: ${SMTP_HOST:-}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_USER: ${SMTP_USER:-}
+      SMTP_PASSWORD: ${SMTP_PASSWORD:-}
+      SMTP_FROM: ${SMTP_FROM:-GlucoPerso <noreply@example.org>}
+    volumes:
+      # Photos (/data/photos) and the generated secret (/data/secrets.env).
+      - app-data:/data
+    # Loopback only by default: put a reverse proxy (Caddy…) in front.
+    ports:
+      - "${APP_BIND:-127.0.0.1}:${APP_PORT:-3000}:3000"
+    networks: [backend, proxy]
+    read_only: true
+    tmpfs:
+      - /tmp
+      - /app/.next/cache:uid=1000,gid=1000,mode=0700
+    security_opt: [no-new-privileges:true]
+    cap_drop: [ALL]
+
+  # Optional HTTPS front: `docker compose --profile caddy up -d`.
+  caddy:
+    image: caddy:2-alpine
+    profiles: [caddy]
+    restart: unless-stopped
+    depends_on: [app]
+    environment:
+      DOMAIN: ${DOMAIN:-localhost}
+      ACME_EMAIL: ${ACME_EMAIL:-}
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - ./docker/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+    networks: [proxy]
+
+networks:
+  # Internal: no route to the outside world (database traffic only).
+  backend:
+    internal: true
+  proxy: {}
+
+volumes:
+  db-data:
+  app-data:
+  caddy-data:
+  caddy-config:
