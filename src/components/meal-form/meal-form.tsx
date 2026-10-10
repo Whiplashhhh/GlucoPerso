@@ -84,6 +84,7 @@ export function MealForm({
   const detailHref = mealId ? `/repas/${mealId}` : "/";
 
   const [photoId, setPhotoId] = useState<string | null>(initial?.photoId ?? null);
+  const [photoBusy, setPhotoBusy] = useState(false);
   const [name, setName] = useState(initial?.name ?? "");
   const [memories, setMemories] = useState<DishMemory[]>([]);
   const [chosen, setChosen] = useState<DishMemory | null>(null);
@@ -263,7 +264,7 @@ export function MealForm({
       </header>
 
       <div className="flex flex-1 flex-col gap-6 px-5 pt-2 pb-40">
-        <PhotoPicker photoId={photoId} onChange={setPhotoId} />
+        <PhotoPicker photoId={photoId} onChange={setPhotoId} onBusyChange={setPhotoBusy} />
 
         <section className="flex flex-col gap-3">
           <label htmlFor="meal-name" className="pl-1 text-sm font-bold text-ink-soft">
@@ -473,7 +474,7 @@ export function MealForm({
         <Button
           size="lg"
           className="pointer-events-auto mb-4 w-full"
-          loading={pending}
+          loading={pending || photoBusy}
           onClick={() => submit(false)}
         >
           {editing ? "Enregistrer les modifications" : "Enregistrer le repas"}

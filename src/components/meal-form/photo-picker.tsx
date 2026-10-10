@@ -6,14 +6,19 @@ import { Spinner } from "@/components/ui/button";
 import { photoUrl } from "@/lib/dishes";
 import { MAX_PHOTO_BYTES } from "@/lib/photos/magic";
 
-type Props = { photoId: string | null; onChange: (photoId: string | null) => void };
+type Props = {
+  photoId: string | null;
+  onChange: (photoId: string | null) => void;
+  /** Lets the form wait for the upload before saving. */
+  onBusyChange?: (busy: boolean) => void;
+};
 
 /**
  * Camera or gallery; the photo is uploaded right away and re-encoded
  * server-side. When editing, the meal's current photo is shown first and can
  * be replaced or removed.
  */
-export function PhotoPicker({ photoId, onChange }: Props) {
+export function PhotoPicker({ photoId, onChange, onBusyChange }: Props) {
   const cameraRef = useRef<HTMLInputElement>(null);
   const galleryRef = useRef<HTMLInputElement>(null);
   const [preview, setPreview] = useState<string | null>(() =>
@@ -32,6 +37,7 @@ export function PhotoPicker({ photoId, onChange }: Props) {
     const previous = { preview, photoId };
     setPreview(URL.createObjectURL(file));
     setUploading(true);
+    onBusyChange?.(true);
     const body = new FormData();
     body.append("photo", file);
     try {
@@ -46,6 +52,7 @@ export function PhotoPicker({ photoId, onChange }: Props) {
       setError(cause instanceof Error ? cause.message : "Envoi impossible, on réessaie ?");
     } finally {
       setUploading(false);
+      onBusyChange?.(false);
     }
   }
 

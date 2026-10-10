@@ -3,7 +3,7 @@
 import { ArrowLeft } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { useRouter } from "next/navigation";
-import { type ReactNode, useState, useTransition } from "react";
+import { type ReactNode, useEffect, useState, useTransition } from "react";
 import { Celebration } from "@/components/celebration";
 import { Bowl, Croissant, Strawberry, Sun } from "@/components/illustrations/buddies";
 import { Button } from "@/components/ui/button";
@@ -72,9 +72,15 @@ export function OnboardingFlow({ initialName }: { initialName: string }) {
         return;
       }
       setDone(true);
-      setTimeout(() => router.replace("/"), 1900);
     });
   }
+
+  // Let the celebration play, then go home; cancelled if she leaves first.
+  useEffect(() => {
+    if (!done) return;
+    const timer = setTimeout(() => router.replace("/"), 1900);
+    return () => clearTimeout(timer);
+  }, [done, router]);
 
   const canContinue = step !== 0 || name.trim().length > 0;
 
