@@ -12,12 +12,19 @@ const alive = (userId: string) => ({ userId, deletedAt: null });
 /** The « Comment ça s'est passé ? » card shows up 2 hours after the meal. */
 export const FEEDBACK_DELAY_MS = 2 * 60 * 60 * 1000;
 
-export async function createMeal(userId: string, input: MealInput, ratioUsed: number | null) {
+/** `clientId`: id given offline by the device (see src/server/actions/offline.ts). */
+export async function createMeal(
+  userId: string,
+  input: MealInput,
+  ratioUsed: number | null,
+  clientId: string | null = null,
+) {
   const dishId = await findOrCreateDish(userId, input.name);
   return db.$transaction(async (tx) => {
     const meal = await tx.meal.create({
       data: {
         userId,
+        clientId,
         dishId,
         name: input.name,
         eatenAt: input.eatenAt,
@@ -42,6 +49,11 @@ export async function createMeal(userId: string, input: MealInput, ratioUsed: nu
     await tx.dish.update({ where: { id: dishId, userId }, data: { updatedAt: new Date() } });
     return meal;
   });
+}
+
+/** Whether a meal noted offline with this device id was already saved. */
+export async function hasClientMeal(userId: string, clientId: string) {
+  return (await db.meal.count({ where: { userId, clientId } })) > 0;
 }
 
 export async function getMeal(userId: string, mealId: string) {

@@ -24,7 +24,8 @@ l'interface est en français, chaleureuse, sans jamais culpabiliser.
 - **Mes plats** : regroupement automatique, favoris, dose qui a le mieux marché, fusion.
 - **Lente du jour**, **Mon évolution** (courbes, répartition positive), **exports CSV/PDF** pour
   le diabéto, **export RGPD** complet et suppression du compte.
-- **PWA** installable avec mode hors ligne prudent, mode sombre soigné, accessibilité (cibles
+- **PWA** installable ; hors ligne, saisie d'un repas chiffrée pour le serveur et synchronisée au
+  retour du réseau ; mode sombre soigné, accessibilité (cibles
   48 px, `prefers-reduced-motion`, contraste AA).
 
 ## Stack

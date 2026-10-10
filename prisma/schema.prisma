@@ -279,8 +279,12 @@ model Meal {
   deletedAt       DateTime?
   createdAt       DateTime     @default(now())
   updatedAt       DateTime     @updatedAt
+  /// Id given by the device to a meal noted offline: replaying a sync never
+  /// creates it twice.
+  clientId        String?
   photos          Photo[]
 
+  @@unique([userId, clientId])
   @@index([userId, eatenAt])
   @@index([userId, dishId])
 }

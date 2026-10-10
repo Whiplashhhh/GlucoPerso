@@ -8,9 +8,13 @@
  * HTML of any other page: navigations go to the network and only fall back to
  * the offline page when the network is unreachable.
  *
- * Bump VERSION whenever this file's caching logic or the icons change.
+ * Meals noted offline on that page never touch this cache: they wait in
+ * IndexedDB, encrypted for the server (src/lib/offline/).
+ *
+ * Bump VERSION whenever this file's caching logic, the icons or the offline
+ * page change.
  */
-const VERSION = "v1";
+const VERSION = "v2";
 const SHELL_CACHE = `gp-shell-${VERSION}`;
 const STATIC_CACHE = `gp-static-${VERSION}`;
 const OFFLINE_URL = "/hors-ligne";
