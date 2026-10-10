@@ -23,6 +23,8 @@ Format : date — décision — raison.
 - **2026-10-10 — Verrouillage progressif** : après 5 échecs, 30 s puis doublement jusqu'à 1 h, oubli après 24 h calmes. Clés = hash de l'email (jamais l'email en clair). S'ajoute au rate limiting Better Auth stocké en base.
 - **2026-10-10 — argon2id** via `@node-rs/argon2` (paramètres OWASP : 19 Mio, t=2, p=1).
 - **2026-10-10 — Thème** : cookie `gp-theme` lu côté serveur (pas de script inline, pas de flash) ; sans cookie on suit le système.
+- **2026-10-10 — Revue de sécurité** (détails : `docs/securite.md`) : IP client lue comme Better Auth (droite à gauche avec `TRUSTED_PROXIES`, sinon un seul `X-Forwarded-For` cru, sinon compteur commun ; `X-Real-IP` ignoré). Compteur de verrouillage atomique (`SELECT … FOR UPDATE`). Endpoints Better Auth inutilisés désactivés ; logger Better Auth limité aux erreurs, emails masqués. Erreurs de validation Prisma réécrites sans arguments (elles recopiaient les données de santé dans les logs). CSP de repli sans script sur tout ce que le proxy ne voit pas, CORP same-origin. Upload photo compté en streaming. `Clear-Site-Data: "cache"` à la déconnexion (le cache privé des photos est gardé pour la fluidité). Overrides npm `mysql2`/`deepmerge-ts` ; l'avis `braces` (dev uniquement, sans correctif) est accepté.
+- **2026-10-10 — Tests d'intégration** sur une base dédiée (`INTEGRATION_DATABASE_URL`, défaut `glucoperso_integration_test`, créée au besoin), distincte de la base e2e pour que les deux suites ne s'effacent pas.
 - **2026-10-10 — Config ESLint** : laissée à celle du scaffold Next (core-web-vitals + TypeScript) ; un hook local protège ce fichier. Elle ne contient pas de règles de style en conflit avec Prettier.
 
 ## Ratio adaptatif
