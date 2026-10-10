@@ -34,3 +34,11 @@ Format : date — décision — raison.
 - **2026-10-10 — Application** : l'action serveur recalcule la suggestion et n'applique que la valeur proposée par le moteur ; le client n'envoie que le moment et la décision.
 - **2026-10-10 — Alerte bienveillante** : ≥ 2 hypos ressucrées sur 7 jours → message invitant à en parler à l'équipe médicale.
 - **2026-10-10 — Saisie** : la carte de dose indicative occupe un emplacement de hauteur fixe pour que le pavé numérique ne bouge jamais pendant la frappe.
+
+## PWA, déploiement et démo
+
+- **2026-10-10 — Service worker prudent** : les navigations passent toujours par le réseau ; seul `/hors-ligne` (public) est gardé en HTML. Cache-first uniquement pour `/_next/static`, icônes, écrans de démarrage et manifeste. Jamais d'`/api`, de photos ni de pages authentifiées en cache (données de santé). Incrémenter `VERSION` dans `public/sw.js` à chaque changement.
+- **2026-10-10 — Image Docker** : Node 24 slim, utilisateur non-root, système de fichiers en lecture seule, migrations via une petite installation Prisma CLI dédiée (`/opt/migrate`), secret Better Auth généré au premier lancement dans `/data/secrets.env` (600). Code d'invitation : `docker compose exec app invite` (script empaqueté avec esbuild).
+- **2026-10-10 — Compose** : Postgres sur un réseau interne sans port publié ; l'appli écoute sur `127.0.0.1:3000` ; Caddy optionnel (profil `caddy`) qui retire le paramètre de recherche des logs.
+- **2026-10-10 — Sauvegardes** : dump Postgres + volume `/data` complet (photos + secret) avec sommes de contrôle, 14 dernières gardées ; la restauration fait d'abord une sauvegarde de sécurité.
+- **2026-10-10 — Seed de démo** : données déterministes, historique antidaté écrit directement, refuse la production sans `DEMO_SEED_ALLOW_PRODUCTION=1` (mot de passe public). Les dîners récents sont calibrés pour produire la suggestion 12 → 13.
