@@ -82,19 +82,17 @@ export default async function DishPage({ params, searchParams }: PageProps<"/pla
       </div>
 
       <div className="flex flex-col gap-6 px-5">
-        <header className="flex items-start justify-between gap-3">
-          <div className="min-w-0">
-            <p className="text-xs font-extrabold tracking-wide text-coral-ink uppercase">
-              Mon plat
-            </p>
-            <h1 className="text-[2rem] leading-tight font-semibold break-words">{dish.name}</h1>
-            <p className="mt-1 text-[15px] font-semibold text-ink-soft">
-              {timesEaten(stats.count)} · dernière fois {last}
-            </p>
-          </div>
-          <div className="pt-5">
+        <header className="flex flex-col gap-1">
+          <p className="text-xs font-extrabold tracking-wide text-coral-ink uppercase">Mon plat</p>
+          <div className="flex items-start justify-between gap-3">
+            <h1 className="min-w-0 text-[2rem] leading-tight font-semibold break-words">
+              {dish.name}
+            </h1>
             <FavoriteButton dishId={dish.id} isFavorite={dish.isFavorite} />
           </div>
+          <p className="text-[15px] font-semibold text-ink-soft">
+            {timesEaten(stats.count)} · dernière fois {last}
+          </p>
         </header>
 
         <ButtonLink href={`/repas/nouveau?plat=${dish.id}`} size="lg">
@@ -110,13 +108,23 @@ export default async function DishPage({ params, searchParams }: PageProps<"/pla
             </dd>
           </div>
           <div className="flex flex-col gap-1 rounded-[22px] bg-surface px-4 py-3.5 shadow-soft">
-            <dt className="text-sm font-bold text-ink-soft">Pile poil</dt>
+            <dt className="text-sm font-bold text-ink-soft">Pile poil 🎯</dt>
             <dd className="font-display text-[2rem] leading-none font-semibold text-ink tabular">
-              {stats.rated ? `${stats.perfect} / ${stats.rated}` : "—"}
+              {stats.perfect > 0 ? (
+                <>
+                  {stats.perfect}
+                  <span className="font-sans text-base font-bold text-ink-soft">
+                    {" "}
+                    fois sur {stats.rated}
+                  </span>
+                </>
+              ) : (
+                "✨"
+              )}
             </dd>
             <dd className="flex flex-wrap items-center gap-2 pt-1 text-xs font-bold text-ink-soft">
               <RecentOutcomes outcomes={stats.recentOutcomes} size={12} />
-              {perfectSummary(stats)}
+              {stats.perfect === 0 && perfectSummary(stats)}
             </dd>
           </div>
         </dl>
@@ -192,7 +200,7 @@ export default async function DishPage({ params, searchParams }: PageProps<"/pla
               return {
                 id: meal.id,
                 name: meal.name,
-                time: `${format(local, "EEE d MMM", { locale: fr })} · ${format(local, "HH:mm")}`,
+                time: format(local, "EEE d MMM", { locale: fr }),
                 carbsGrams: meal.carbsGrams,
                 insulinUnits: meal.insulinUnits,
                 outcome: meal.outcome,
