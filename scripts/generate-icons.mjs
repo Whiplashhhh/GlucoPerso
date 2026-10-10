@@ -13,6 +13,7 @@ const ROOT = path.resolve(import.meta.dirname, "..");
 const PUBLIC = path.join(ROOT, "public");
 
 const CREAM = "#fbf4ea";
+const NIGHT = "#17122a";
 const INK = "#3a2930";
 const BLUSH = "#ff8e8e";
 
@@ -68,13 +69,19 @@ function iconSvg(size, { maskable = false, rounded = true } = {}) {
 </svg>`;
 }
 
-function splashSvg(width, height) {
+/** Splash colours follow the app's light and dark `--bg` (src/app/globals.css). */
+const SPLASH_THEMES = {
+  light: { suffix: "", background: CREAM, halo: "#ffe1d3" },
+  dark: { suffix: "-dark", background: NIGHT, halo: "#2f2860" },
+};
+
+function splashSvg(width, height, { background, halo }) {
   const art = Math.min(width, height) * 0.36;
   const cy = height * 0.46;
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">
   ${DEFS}
-  <rect width="${width}" height="${height}" fill="${CREAM}"/>
-  <circle cx="${width / 2}" cy="${cy}" r="${art * 0.62}" fill="#ffe1d3"/>
+  <rect width="${width}" height="${height}" fill="${background}"/>
+  <circle cx="${width / 2}" cy="${cy}" r="${art * 0.62}" fill="${halo}"/>
   ${mascot(width / 2, cy, art)}
 </svg>`;
 }
@@ -126,6 +133,10 @@ await ico([16, 32, 48], path.join(ROOT, "src/app/favicon.ico"));
 for (const { width, height, ratio } of SPLASH_SCREENS) {
   const w = width * ratio;
   const h = height * ratio;
-  await png(splashSvg(w, h), `splash/splash-${w}x${h}.png`, { palette: true });
+  for (const theme of Object.values(SPLASH_THEMES)) {
+    await png(splashSvg(w, h, theme), `splash/splash${theme.suffix}-${w}x${h}.png`, {
+      palette: true,
+    });
+  }
 }
 console.info("Done.");
