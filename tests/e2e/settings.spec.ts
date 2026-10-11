@@ -6,6 +6,7 @@ test("settings: dark theme, pen increment and a manual ratio change", async ({ p
   await registerAndOnboard(page, { name: "Léa" });
   await page.getByRole("link", { name: "Moi" }).click();
   await expect(page.getByRole("heading", { name: "Moi", exact: true })).toBeVisible();
+  await expect(page.getByRole("switch", { name: "Rappel 2 h après le repas" })).toBeVisible();
 
   await page.getByRole("radio", { name: "Sombre" }).click();
   await expect(page.getByText("Enregistré")).toBeVisible();
@@ -30,6 +31,31 @@ test("settings: dark theme, pen increment and a manual ratio change", async ({ p
   await expect(history.getByText("« Conseil de mon diabéto »")).toBeVisible();
   await expect(history.getByText("1 U / 11 g")).toBeVisible();
   await expect(history.getByText("départ", { exact: true })).toBeVisible();
+});
+
+test("the theme follows her to another device", async ({ page, browser }) => {
+  const { email } = await registerAndOnboard(page, { name: "Léa" });
+  await page.goto("/moi");
+  await page.getByRole("radio", { name: "Sombre" }).click();
+  await expect(page.getByText("Enregistré")).toBeVisible();
+
+  // A second phone that never saw the choice: no theme cookie at all.
+  const other = await browser.newContext({ baseURL: test.info().project.use.baseURL });
+  const phone = await other.newPage();
+  await phone.goto("/connexion");
+  await expect(phone.locator("html")).not.toHaveClass(/\bdark\b/);
+  await phone.getByLabel("Email").fill(email);
+  await phone.getByLabel("Mot de passe", { exact: true }).fill(PASSWORD);
+  await phone.getByRole("button", { name: "Me connecter" }).click();
+  await expect(phone.getByRole("heading", { name: /(Coucou|Bonsoir) Léa/ })).toBeVisible();
+  await expect(phone.locator("html")).toHaveClass(/\bdark\b/);
+
+  // Back to light on the first device: the second one follows on its next load.
+  await page.getByRole("radio", { name: "Clair" }).click();
+  await expect(page.locator("html")).toHaveClass(/\blight\b/);
+  await phone.reload();
+  await expect(phone.locator("html")).toHaveClass(/\blight\b/);
+  await other.close();
 });
 
 test("long-acting insulin check on the home page, with undo", async ({ page }) => {

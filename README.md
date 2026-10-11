@@ -16,7 +16,8 @@ l'interface est en français, chaleureuse, sans jamais culpabiliser.
   « Déjà mangé » avec rappel des notes, pavé numérique, dose indicative arrondie au stylo,
   correction séparée (exclue du ratio), glycémie avant, tags, garde-fou sur les grosses doses.
 - **« Comment ça s'est passé ? »** 2 h après : trois réponses bienveillantes, glycémies
-  facultatives qui pré-sélectionnent, hypo ressucrée, petite fête quand c'est pile poil.
+  facultatives qui pré-sélectionnent, hypo ressucrée, petite fête quand c'est pile poil. Rappel
+  par notification (Web Push) si elle n'a pas encore répondu.
 - **Ratio adaptatif** : un ratio par moment de la journée, toujours visible en grand ; suggestions
   prudentes (±10 % max, jamais appliquées sans elle), historique complet, indicateur de confiance.
 - **Calendrier** mensuel avec pastilles (forme + couleur), détail, modification, suppression
