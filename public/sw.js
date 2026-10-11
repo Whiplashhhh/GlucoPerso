@@ -8,6 +8,9 @@
  * HTML of any other page: navigations go to the network and only fall back to
  * the offline page when the network is unreachable.
  *
+ * It also shows the « Comment ça s'est passé ? » reminders pushed by the server
+ * (src/server/push/reminders.ts) and opens the right page when one is tapped.
+ *
  * Bump VERSION whenever this file's caching logic or the icons change.
  */
 const VERSION = "v1";
@@ -122,4 +125,41 @@ self.addEventListener("fetch", (event) => {
     event.respondWith(cacheFirst(event));
   }
   // Everything else (RSC payloads, data) goes straight to the network.
+});
+
+self.addEventListener("push", (event) => {
+  let message = {};
+  try {
+    message = event.data ? event.data.json() : {};
+  } catch {
+    // Not ours or unreadable: still show something (browsers require it).
+  }
+  const url = typeof message.url === "string" && message.url.startsWith("/") ? message.url : "/";
+  event.waitUntil(
+    self.registration.showNotification(message.title || "GlucoPerso", {
+      body: message.body || "",
+      tag: message.tag,
+      icon: "/icons/icon-192.png",
+      badge: "/icons/icon-192.png",
+      lang: "fr",
+      data: { url },
+    }),
+  );
+});
+
+self.addEventListener("notificationclick", (event) => {
+  event.notification.close();
+  const url = new URL(event.notification.data?.url || "/", self.location.origin);
+  event.waitUntil(
+    (async () => {
+      const windows = await self.clients.matchAll({ type: "window", includeUncontrolled: true });
+      const open = windows.find((client) => new URL(client.url).origin === url.origin);
+      if (open) {
+        await open.focus();
+        if (open.url !== url.href) await open.navigate(url.href).catch(() => undefined);
+        return;
+      }
+      await self.clients.openWindow(url.href);
+    })(),
+  );
 });

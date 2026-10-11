@@ -10,10 +10,12 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Sun } from "@/components/illustrations/buddies";
 import { MedicalNote } from "@/components/medical-note";
+import { ReminderToggle } from "@/components/settings/reminder-toggle";
 import { LinkRow, SettingsSection } from "@/components/settings/section";
 import { formatNumber } from "@/lib/format";
 import { MEAL_MOMENTS, MOMENT_EMOJI, MOMENT_LABEL, type RatioMoment } from "@/lib/moments";
 import { themeChoiceOf } from "@/lib/theme";
+import { vapidKeys } from "@/server/push/vapid";
 import { remainingRecoveryCodes } from "@/server/repos/recovery";
 import { getRatioTable } from "@/server/repos/settings";
 import { requireAppUser } from "@/server/session";
@@ -113,6 +115,10 @@ export default async function MePage() {
           timezone: settings.timezone,
         }}
       />
+
+      <SettingsSection title="Rappels" id="rappels">
+        <ReminderToggle publicKey={vapidKeys().publicKey} />
+      </SettingsSection>
 
       <SettingsSection title="Sécurité" id="securite">
         <LinkRow
