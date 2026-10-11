@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { CheerArt } from "@/components/celebration";
 import { Cloud, Peach, Sparkle, Star } from "@/components/illustrations/buddies";
+import { OfflineMealForm } from "@/components/offline/offline-meal-form";
 import { ButtonLink } from "@/components/ui/button";
 
 export const metadata: Metadata = { title: "Hors ligne" };
@@ -8,12 +9,13 @@ export const metadata: Metadata = { title: "Hors ligne" };
 /**
  * Shown by the service worker (public/sw.js) when a page cannot be reached.
  * It is the only HTML the worker keeps in cache, so it must never display
- * personal data.
+ * personal data. On a device where she was signed in, it also lets her note a
+ * meal, kept encrypted until the network comes back (OfflineMealForm).
  */
 export default function OfflinePage() {
   return (
     <div className="relative isolate min-h-dvh overflow-hidden md:overflow-visible">
-      <main className="relative isolate mx-auto app-frame flex min-h-dvh w-full max-w-md flex-col justify-center gap-8 px-5 pt-safe pb-safe text-center md:min-h-[calc(100dvh-3rem)]">
+      <main className="relative isolate mx-auto app-frame flex min-h-dvh w-full max-w-md flex-col justify-center gap-8 px-5 pt-safe pb-safe text-center md:min-h-[calc(100dvh-3rem)] [&:has(section)]:py-10">
         <div
           aria-hidden="true"
           className="absolute -top-32 -right-24 -z-10 size-80 rounded-full bg-lavender-soft blur-3xl"
@@ -31,6 +33,7 @@ export default function OfflinePage() {
             étais.
           </p>
         </div>
+        <OfflineMealForm />
         {/* Renders a real <a>: works even if JavaScript could not be loaded. */}
         <ButtonLink href="/" prefetch={false} size="lg" className="mx-auto w-full max-w-xs">
           Réessayer
