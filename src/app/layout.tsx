@@ -6,7 +6,8 @@ import { Peach } from "@/components/illustrations/buddies";
 import { MotionProvider } from "@/components/motion-provider";
 import { ServiceWorkerRegister } from "@/components/sw-register";
 import splashScreens from "@/lib/splash-screens.json";
-import { THEME_COOKIE, themeClass } from "@/lib/theme";
+import { THEME_COOKIE, themeChoiceOf, themeClass } from "@/lib/theme";
+import { getSession, getSettings } from "@/server/session";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -43,8 +44,25 @@ export const viewport: Viewport = {
   ],
 };
 
+/**
+ * Signed in, the theme saved in her settings wins, so a change made on her
+ * phone shows up on her computer at the next page load. Signed out (login
+ * pages), the per-device cookie set at sign-in or when saving is used.
+ */
+async function currentTheme(): Promise<string | undefined> {
+  const cookie = (await cookies()).get(THEME_COOKIE)?.value;
+  try {
+    const session = await getSession();
+    const settings = session ? await getSettings(session.user.id) : null;
+    return settings ? themeChoiceOf(settings.theme) : cookie;
+  } catch {
+    // Public pages (offline page, login) must render even if the database is down.
+    return cookie;
+  }
+}
+
 export default async function RootLayout({ children }: LayoutProps<"/">) {
-  const theme = (await cookies()).get(THEME_COOKIE)?.value;
+  const theme = await currentTheme();
   return (
     <html lang="fr" className={themeClass(theme)}>
       <body>
