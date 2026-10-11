@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { CheerArt } from "@/components/celebration";
+import { CreatorCredit } from "@/components/creator-credit";
 import { Cloud, Peach, Sparkle, Star } from "@/components/illustrations/buddies";
 import { OfflineMealForm } from "@/components/offline/offline-meal-form";
 import { ButtonLink } from "@/components/ui/button";
@@ -38,6 +39,7 @@ export default function OfflinePage() {
         <ButtonLink href="/" prefetch={false} size="lg" className="mx-auto w-full max-w-xs">
           Réessayer
         </ButtonLink>
+        <CreatorCredit />
       </main>
     </div>
   );

@@ -29,6 +29,8 @@ l'interface est en français, chaleureuse, sans jamais culpabiliser.
   retour du réseau ; mode sombre soigné, accessibilité (cibles
   48 px, `prefers-reduced-motion`, contraste AA).
 
+Créé par **Willem Vanbaelinghem**.
+
 ## Stack
 
 Next.js 16 (App Router) · TypeScript strict · PostgreSQL + Prisma 7 (`pg_trgm`) · Better Auth

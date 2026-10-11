@@ -1,3 +1,4 @@
+import { CreatorCredit } from "@/components/creator-credit";
 import { Cloud, Sparkle, Star } from "@/components/illustrations/buddies";
 import { ForgetOfflineAccount } from "@/components/offline/offline-sync";
 
@@ -18,6 +19,7 @@ export default function AuthLayout({ children }: LayoutProps<"/">) {
         <Star className="absolute top-10 right-6 -z-10 w-7 rotate-12" />
         <Sparkle className="absolute top-20 right-14 -z-10 w-3.5 text-coral" />
         {children}
+        <CreatorCredit className="mt-auto pt-6 pb-4" />
       </main>
       <ForgetOfflineAccount />
     </div>

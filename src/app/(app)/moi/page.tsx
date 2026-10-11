@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
+import { CreatorCredit } from "@/components/creator-credit";
 import { Sun } from "@/components/illustrations/buddies";
 import { MedicalNote } from "@/components/medical-note";
 import { ReminderToggle } from "@/components/settings/reminder-toggle";
@@ -136,6 +137,7 @@ export default async function MePage() {
       </SettingsSection>
 
       <MedicalNote />
+      <CreatorCredit />
     </div>
   );
 }

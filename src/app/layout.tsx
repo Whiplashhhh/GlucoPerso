@@ -5,6 +5,7 @@ import "@fontsource-variable/nunito";
 import { Peach } from "@/components/illustrations/buddies";
 import { MotionProvider } from "@/components/motion-provider";
 import { ServiceWorkerRegister } from "@/components/sw-register";
+import { CREATOR } from "@/lib/credits";
 import splashScreens from "@/lib/splash-screens.json";
 import { THEME_COOKIE, themeChoiceOf, themeClass } from "@/lib/theme";
 import { getSession, getSettings } from "@/server/session";
@@ -14,6 +15,8 @@ export const metadata: Metadata = {
   title: { default: "GlucoPerso", template: "%s · GlucoPerso" },
   description: "Ton carnet de repas et d'insuline, tout en douceur.",
   applicationName: "GlucoPerso",
+  authors: [{ name: CREATOR }],
+  creator: CREATOR,
   robots: { index: false, follow: false },
   // favicon.ico and manifest.webmanifest come from the app/ file conventions.
   icons: {

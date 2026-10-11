@@ -1,5 +1,6 @@
 import "server-only";
 import PDFDocument from "pdfkit";
+import { CREATOR } from "@/lib/credits";
 import { type ExportMeal, exportRow, pdfText } from "@/lib/export/meals";
 import { formatNumber } from "@/lib/format";
 import { GLUCOSE_UNIT_LABEL, type GlucoseUnit } from "@/lib/glucose";
@@ -54,7 +55,7 @@ export async function buildReportPdf(report: PdfReport): Promise<Buffer> {
     info: {
       Title: pdfText(`GlucoPerso — ${report.name} — ${formatRange(report.from, report.to)}`),
       Author: "GlucoPerso",
-      Creator: "GlucoPerso",
+      Creator: pdfText(`GlucoPerso, créé par ${CREATOR}`),
     },
   });
   const chunks: Buffer[] = [];
@@ -201,7 +202,9 @@ export async function buildReportPdf(report: PdfReport): Promise<Buffer> {
     doc.page.margins.bottom = 0;
     doc.font("Helvetica").fontSize(8).fillColor(SOFT);
     doc.text(
-      "Données saisies par la patiente dans GlucoPerso, à titre indicatif.",
+      pdfText(
+        `Données saisies par la patiente dans GlucoPerso (créé par ${CREATOR}), à titre indicatif.`,
+      ),
       MARGIN,
       bottom,
       { width: width - 60, lineBreak: false },
