@@ -15,12 +15,15 @@
 
 ## Améliorations possibles
 
-- [ ] Notification (Web Push) pour le « Comment ça s'est passé ? » 2 h après le repas.
-- [ ] Version sombre des écrans de démarrage iOS.
-- [ ] Synchroniser le thème choisi entre appareils à la connexion (aujourd'hui : cookie par
-      appareil + réglage en base).
-- [ ] Mode hors ligne pour la saisie (file d'attente locale chiffrée), aujourd'hui volontairement
-      absent pour ne pas stocker de données de santé dans le navigateur.
+- [x] Notification (Web Push) pour le « Comment ça s'est passé ? » 2 h après le repas (#28),
+      sauf si elle a déjà répondu.
+- [x] Version sombre des écrans de démarrage iOS (#27).
+- [x] Synchroniser le thème choisi entre appareils (#26) : connectée, le réglage en base fait foi ;
+      le cookie de l'appareil est réécrit à la connexion.
+- [x] Mode hors ligne pour la saisie (#29) : file d'attente locale chiffrée pour le serveur,
+      illisible par l'appareil. Sans calcul de dose hors ligne.
 - [ ] Verrouillage par email + IP plutôt que par email seul (limite le blocage malveillant).
 - [ ] Remplacer `style-src 'unsafe-inline'` si Motion permet un jour les styles à nonce.
 - [ ] Build Docker multi-architecture (ARM).
+- [ ] Tester sur un vrai iPhone / Android : réception des rappels (serveur en https) et écran de
+      démarrage sombre (réinstaller l'appli sur l'écran d'accueil).
