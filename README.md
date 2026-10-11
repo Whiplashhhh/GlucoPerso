@@ -119,3 +119,7 @@ par commitlint).
 
 Documents : [`PLAN.md`](PLAN.md) · [`DECISIONS.md`](DECISIONS.md) · [`RAPPORT.md`](RAPPORT.md) ·
 [`TODO.md`](TODO.md)
+
+## Licence
+
+Code publié sous [licence MIT](LICENSE) © 2026 Willem Vanbaelinghem.

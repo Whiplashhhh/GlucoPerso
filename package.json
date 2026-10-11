@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "author": "Willem Vanbaelinghem",
+  "license": "MIT",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
