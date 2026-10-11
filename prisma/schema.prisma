@@ -73,17 +73,18 @@ model User {
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
-  sessions      Session[]
-  accounts      Account[]
-  settings      UserSettings?
-  ratios        Ratio[]
-  ratioChanges  RatioChange[]
-  suggestions   RatioSuggestion[]
-  dishes        Dish[]
-  meals         Meal[]
-  photos        Photo[]
-  basalLogs     BasalLog[]
-  recoveryCodes RecoveryCode[]
+  sessions          Session[]
+  accounts          Account[]
+  settings          UserSettings?
+  ratios            Ratio[]
+  ratioChanges      RatioChange[]
+  suggestions       RatioSuggestion[]
+  dishes            Dish[]
+  meals             Meal[]
+  photos            Photo[]
+  basalLogs         BasalLog[]
+  recoveryCodes     RecoveryCode[]
+  pushSubscriptions PushSubscription[]
 }
 
 model Session {
@@ -276,11 +277,17 @@ model Meal {
   hypoTreated     Boolean?
   outcomeNote     String?
   feedbackSkipped Boolean      @default(false)
+  /// When the « Comment ça s'est passé ? » push reminder was sent (or claimed).
+  reminderSentAt  DateTime?
   deletedAt       DateTime?
   createdAt       DateTime     @default(now())
   updatedAt       DateTime     @updatedAt
+  /// Id given by the device to a meal noted offline: replaying a sync never
+  /// creates it twice.
+  clientId        String?
   photos          Photo[]
 
+  @@unique([userId, clientId])
   @@index([userId, eatenAt])
   @@index([userId, dishId])
 }
@@ -312,4 +319,17 @@ model BasalLog {
   takenAt DateTime
 
   @@unique([userId, day])
+}
+
+/// One Web Push subscription per device that turned meal reminders on.
+model PushSubscription {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  endpoint  String   @unique
+  p256dh    String
+  auth      String
+  createdAt DateTime @default(now())
+
+  @@index([userId])
 }
